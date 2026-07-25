@@ -56,6 +56,29 @@ personal Football profile entry is not automatically exposed or created.
 **Then** they can be related by stable ids and documented conflicts can be resolved
 without relying on name uniqueness or deleting historical relations.
 
+### AC: scalar-conflicts-remain-explicit (verifies REQ:conflict-inventory)
+
+**Given** duplicate teams disagree on name, gender, age, location or image,
+**When** a future merge resolver reads Sportius records,
+**Then** both source values and stable source identities are available for an
+explicit winner/manual-resolution policy rather than last-write loss.
+
+### AC: relational-conflicts-can-be-remapped (verifies REQ:merge-aware-records, REQ:conflict-inventory)
+
+**Given** duplicates contain overlapping contacts, players, staff roles, owners
+and conflicting club links,
+**When** space/contact IDs are remapped,
+**Then** Sportius relations can be deduplicated by remapped stable identity,
+multi-valued roles/owners can be unioned, and multiple club candidates remain an
+explicit conflict for the MVP’s single-club view.
+
+### AC: merge-seam-does-not-implement-core-merge (verifies REQ:merge-aware-records)
+
+**Given** generic Sneat merging is not yet available,
+**When** Sportius persists extension data,
+**Then** repositories expose stable records and remappable relations without
+performing deletion, redirect resolution or generic merge orchestration.
+
 ## Open Questions
 
 Generic merge semantics belong to Sneat core and require separate approval.

@@ -54,6 +54,31 @@ space permission changes.
 **When** the wizard completes,
 **Then** Football remains on their private profile and no team exists or is joined.
 
+### AC: role-selection-may-be-empty (verifies REQ:role-multiselect)
+
+**Given** a user adding Basketball,
+**When** they continue without selecting a role,
+**Then** Basketball is saved with an empty role list.
+
+### AC: profile-entry-is-user-controlled (verifies REQ:personal-sport-entry)
+
+**Given** a user has several personal sports,
+**When** they hide one, unhide it and later remove it,
+**Then** only that profile entry changes and no team or club membership changes.
+
+### AC: catalogue-values-are-stable-and-localised (verifies REQ:personal-sport-entry, REQ:role-multiselect)
+
+**Given** the same profile is rendered in two supported locales,
+**When** catalogue labels are translated,
+**Then** the stored sport and role codes remain unchanged.
+
+### AC: affiliation-actions-continue-the-selected-sport (verifies REQ:affiliation-follow-up)
+
+**Given** Basketball was just added,
+**When** the user chooses Search Team or Create Team,
+**Then** the next flow is constrained to Basketball and can complete without
+changing profile visibility.
+
 ## Open Questions
 
 None.

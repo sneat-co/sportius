@@ -29,6 +29,7 @@ the owner of reusable places/venues and is referenced rather than duplicated.
 | [shared-profile-enrichment](shared-profile-enrichment/README.md) | Location and photos/logos |
 | [team-club-linkage](team-club-linkage/README.md) | Generic space linkage for team affiliation |
 | [privacy-and-merge-compatibility](privacy-and-merge-compatibility/README.md) | Privacy boundaries and future merge safety |
+| [conversational-resilience](conversational-resilience/README.md) | Resumable, localised and failure-safe Telegram flows |
 
 ## Problem
 
@@ -51,7 +52,8 @@ fine-grained RBAC, and generic space merging.
 
 ## Open Questions
 
-- Which existing ToGethered location contract is the first adapter target.
+None. The MVP stores a narrow locality/coordinate hint or a ToGethered spot
+reference; Sportius does not own venues or place lifecycle.
 
 ---
 *This document follows the https://specscore.md/feature-specification*

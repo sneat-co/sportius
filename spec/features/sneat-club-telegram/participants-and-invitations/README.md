@@ -56,6 +56,11 @@ participant projections. Inspection and acceptance MUST validate the opaque
 claim proof from the delivery link (currently the Invitus PIN); an invitation
 ID alone is insufficient. The full delivery link is returned only to the
 creator and MUST NOT be persisted in Sportius projections or callback data.
+Telegram MAY retain the proof only inside the active server-side chat state to
+resume the acceptance wizard, and MUST clear it on completion or cancellation.
+Expired, revoked and cross-space claims fail closed. Duplicate delivery or a
+same-actor retry is idempotent; a different actor cannot replay the claim. Team
+and club invitations use the same lifecycle.
 
 ## Acceptance Criteria
 
@@ -93,6 +98,57 @@ Sportius records the same contact identity, and no duplicate Mia contact exists.
 an incorrect token,
 **Then** no participant, membership or invitation projection changes and the
 token is not logged, rendered or placed in Telegram callback data.
+
+### AC: staff-roles-and-membership-are-explicit (verifies REQ:participant-roles, REQ:players-and-staff)
+
+**Given** a team or club administrator,
+**When** they add Coach and Assistant Coach staff,
+**Then** each contact has explicit participant roles and generic membership while
+those roles do not independently grant ownership.
+
+### AC: guardian-contact-is-reused (verifies REQ:guardian-linkage)
+
+**Given** two player siblings and one existing guardian contact,
+**When** staff link that guardian from both player profiles,
+**Then** both generic relationships target the same contact, the player detail
+shows the appropriate relationship, and no duplicate guardian or membership is
+created.
+
+### AC: invitation-roles-may-be-zero-one-or-many (verifies REQ:invitations)
+
+**Given** invitations with no, one and several suggested Sportius roles,
+**When** invitees edit and accept them,
+**Then** each acceptance claims its existing contact and stores exactly the final
+zero, one or many roles.
+
+### AC: expired-revoked-and-cross-space-invites-fail (verifies REQ:invitations)
+
+**Given** an expired invite, a revoked invite and a claim whose generic space does
+not match its Sportius projection,
+**When** each is inspected or accepted,
+**Then** no roster, membership or role effect occurs and the user sees a safe
+non-disclosing error.
+
+### AC: repeat-accept-is-idempotent (verifies REQ:invitations)
+
+**Given** an invite accepted by its intended actor,
+**When** duplicate Telegram delivery retries the same acceptance,
+**Then** the original contact and membership are returned without duplicate roles,
+contacts or participants; a different actor is rejected.
+
+### AC: invite-proof-is-cleared (verifies REQ:invitations)
+
+**Given** Telegram resumed an invitation with claim proof in active chat state,
+**When** the user accepts or cancels,
+**Then** the proof is removed and subsequent callback data contains only
+non-sensitive invitation state.
+
+### AC: team-and-club-invites-share-behaviour (verifies REQ:invitations)
+
+**Given** equivalent team and club personal-contact invitations,
+**When** each invitee reviews roles and accepts,
+**Then** both use the canonical Invitus claim and only the Sportius role scope and
+destination profile differ.
 
 ## Open Questions
 
