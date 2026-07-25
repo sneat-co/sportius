@@ -251,11 +251,7 @@ func (f *fakeCorePort) AcceptInvitation(_ context.Context, input CoreAcceptInvit
 		f.spaceMembers[target.spaceID] = make(map[string]bool)
 	}
 	f.spaceMembers[target.spaceID][input.ActorUserID] = true
-	claim := CoreInvitationClaim{
-		ContactID:   contact.ContactID,
-		UserID:      contact.UserID,
-		DisplayName: contact.DisplayName,
-	}
+	claim := CoreInvitationClaim(contact)
 	if f.acceptClaimOverride != nil {
 		claim = *f.acceptClaimOverride
 	}

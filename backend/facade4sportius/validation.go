@@ -290,12 +290,6 @@ func sameRoles(first, second []sportius.RoleID) bool {
 	return true
 }
 
-func rolesRequireTeamMembership(roles []sportius.RoleID) bool {
-	return hasRole(roles, sportius.RolePlayer) ||
-		hasRole(roles, sportius.RoleCoach) ||
-		hasRole(roles, sportius.RoleAssistantCoach)
-}
-
 func rolesIncludeStaff(roles []sportius.RoleID) bool {
 	for _, role := range roles {
 		definition, ok := roleDefinition(role)

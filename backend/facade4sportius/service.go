@@ -624,10 +624,10 @@ func (s *Service) JoinTeam(ctx context.Context, actorUserID, spaceID string, req
 		return response, nil
 	}
 
-	switch {
-	case team.Profile.JoinPolicy == sportius.JoinPolicyOpen:
+	switch team.Profile.JoinPolicy {
+	case sportius.JoinPolicyOpen:
 		response.Status = sportius.JoinStatusJoined
-	case team.Profile.JoinPolicy == sportius.JoinPolicyApprovalRequired:
+	case sportius.JoinPolicyApprovalRequired:
 		response.Status = sportius.JoinStatusRequested
 		response.MembershipRequestID = "sportius:team-join:" + spaceID + ":" + joinKey
 		if err = s.repository.Update(ctx, func(writer RepositoryWriter) error {
