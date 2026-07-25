@@ -1,71 +1,98 @@
-# Template backend
+# Sportius backend
 
-Go domain module for this extension. Module path: `github.com/sneat-co/template/backend`
-(the module is rooted here in `backend/`, not at the repo root — same shape as
-`eventius/backend` and `togethered/backend`).
+Sportius domain and application module. The Go module is rooted in `backend/`
+at `github.com/sneat-co/sportius/backend`.
 
-Built to the org standard
-[`extension-backend-architecture.md`](https://github.com/sneat-co/sneat-specs/blob/main/standards/extension-backend-architecture.md):
-the module depends on **`dal-go/dalgo` only**. It must not import `sneat-go-core`,
-`sneat-core-modules`, or another extension's backend. Platform needs are
-expressed as **ports** — small interfaces defined here — satisfied by
-**adapters** that live in the host composition root (`sneat-go`).
+The stable public facade, DTOs, catalogues and role codes live in
+`github.com/sneat-co/ext-sportius/backend`. This module implements that facade.
+It does not import Telegram, HTTP, Firestore, `sneat-go-core`,
+`sneat-core-modules`, or another extension implementation.
 
-This gets the module: no version treadmill against the kernel, independent
-`backend/vX.Y.Z` releases, trivial testability (fake the port, no Firestore
-emulator), and no public/private CI friction (a dalgo-only module builds
-anywhere, no GOPRIVATE needed).
+Generic Sneat work crosses `CorePort`: spaces, contacts, space membership,
+contact and space linkages, invitations, and user briefs. Its production
+adapter belongs in the host composition root. Sportius persistence crosses
+`Repository`; `MemoryRepository` is a copy-on-write transactional adapter for
+unit and bot-flow tests. `DalgoRepository` is the production adapter.
 
-## What's here
+The dalgo adapter stores canonical data at:
 
-This scaffold ships one placeholder vertical slice, wired end to end, so
-`go build ./...` and `go test ./...` prove the shape works before you write
-anything real:
+- `/users/{uid}/ext/sportius` for the user-controlled personal profile;
+- `/spaces/{spaceID}/ext/sportius` for a team or club projection.
 
-| Package | What it is |
-|---|---|
-| `const4template` | Extension ID (plain string constant) |
-| `models4template` | A placeholder DBO + dalgo key builder |
-| `facade4template` | `Facade` (injected `dal.DB` + ports) and one example command, `CreateExampleItem` |
+Exact-name discovery projections are stored under
+`/ext/sportius/teams/{spaceID}` and `/ext/sportius/clubs/{spaceID}`.
+They contain public brief fields and normalised equality-query keys only.
+Ownership, user IDs, participants, guardians, staff, join requests and
+idempotency metadata remain in canonical space extension records.
+Sportius invitation role/status metadata is stored under
+`/ext/sportius/invitations/{invitationID}`; the generic invitation and token
+lifecycle remains behind `CorePort`.
 
-**Delete the placeholder as you build real domain logic.** Nothing here is
-product code — it exists to prove the wiring, the way `Home.astro`'s example
-copy in `landings/` does for the frontend.
+Invitations are contact-first, matching Sneat's personal invitation model. An
+inviter either selects an accessible space contact or supplies a display name
+from which the host creates a non-member contact. That contact ID is passed to
+the generic invitation. Generic acceptance claims the same contact and returns
+its identity; Sportius then attaches the confirmed participant roles to that
+contact without creating a duplicate.
 
-## Adding a real port
+Inspection and acceptance require the generic invitation's opaque claim token.
+The token is passed only to the core adapter for proof validation. Neither it
+nor the creation-only deep link is persisted by Sportius, and inspection
+responses defensively strip the deep link. Authoritative generic status
+resolution permits same-user recovery when generic acceptance succeeded but a
+Sportius projection write failed.
 
-1. Define the interface in `facade4template` (or a new file) — small, one or
-   two methods, primitives + the extension's own spec types only. Never leak
-   another extension's DBO/DTO across it.
-2. Add it as a `Facade` field + `NewFacade` parameter.
-3. Write the real adapter in the host: `sneat-go/pkg/modules/<id>/adapters.go`,
-   registered alongside the extension's `module.go`.
-4. Fake the port in tests — see `facade_test.go`'s `fakeIDGenerator`.
+## Packages
 
-See `eventius/backend/eventius/ports.go` or
-`togethered/backend/facade4togd/ports.go` for real, larger examples of the
-same shape.
+- `const4sportius`: stable extension ID.
+- `models4sportius`: Sportius-owned projection records and defensive clones.
+- `facade4sportius`: facade service, validation, repository and core ports,
+  in-memory and dalgo repositories, view aggregation, and tests.
 
 ## Build & test
 
+The module pins an immutable `ext-sportius/backend` pseudo-version and builds
+standalone. The repository workspace may still be used while co-developing a
+new contract revision.
+
 ```bash
+cd backend
 go build ./...
 go test ./...
+go test -race ./...
 go vet ./...
 ```
 
-## CI & versioning
+## Consistency boundary
 
-`../.github/workflows/backend-ci.yml` runs strongo's Standard Go CI (lint ·
-test · build) on every push/PR touching `backend/**`, and auto-tags the next
-`backend/vX.Y.Z` on push to `main` from conventional-commit messages. Nothing
-to configure — it inherits the org's `SNEAT_CI_READWRITE_TOKEN`.
+Core mutation methods receive a stable request ID and must be idempotent. This
+handles a retry where the generic Sneat write succeeded but the Sportius
+projection write failed. Actor-scoped request keys and canonical payload
+fingerprints reject accidental reuse for a different command. Profile updates
+apply validated field patches to the latest record in the repository
+transaction, so an unrelated concurrent update is not overwritten. The
+generic name write and Sportius projection still span two stores; stable,
+profile-versioned core request IDs make retries safe, but atomic cross-store
+compare-and-swap remains host infrastructure rather than a Sportius concern.
 
-## Where shared types go
+Team and club names are deliberately non-unique;
+stable space IDs are identity. The MVP service exposes zero-or-one club per
+team while persisting the relationship through the generic space-linkage port.
+Embedded team/club linkage fields are rebuildable caches: profile reads resolve
+generic linkages and reconcile stale or missing projections. Linked-team roster
+aggregation is restricted to generic club managers and also requires an
+explicit Sportius club-manager roster policy. Ordinary club members never
+receive cross-team contacts.
 
-If a type here turns out to be needed by more than one extension, it likely
-belongs in the public `ext-<id>` definition repo's `backend/` (a contract
-module), not here — see the architecture doc's "decision ladder" for exactly
-which packages move (`dto4<id>`, brief/read models, facade *interfaces*) versus
-which stay private to this implementation (`dbo4<id>`, `dal4<id>`, facade
-*implementations*).
+Generic Sneat space access is authoritative for every management mutation and
+viewer capability, and for the teams and clubs shown on Sports home. Sportius
+membership/owner projections are query aids only.
+Public profile browsing never returns player, staff, guardian or club-member
+contacts to an actor who is not a generic space member.
+
+An approval-required join creates only a Sportius pending request: it does not
+create a contact, participant, or generic space membership. An approval command
+is intentionally deferred until the host's generic membership approval
+contract is selected; Sportius must not invent a parallel approval authority.
+Generic invitation revocation likewise remains host-owned. This implementation
+does not hide private APIs behind Telegram handlers.
