@@ -44,6 +44,7 @@ func TestCreateSearchUpdateClubWithoutTeams(t *testing.T) {
 	renamed := "Limerick Celtics Sports Club"
 	primary := sportius.SportVolleyball
 	updated, err := fixture.service.UpdateClub(ctx, "owner", first.Profile.SpaceID, sportius.UpdateClubRequest{
+		RequestID:       "update-club-1",
 		Name:            &renamed,
 		PrimarySportID:  &primary,
 		SportIDs:        []sportius.SportID{sportius.SportVolleyball},
@@ -56,6 +57,31 @@ func TestCreateSearchUpdateClubWithoutTeams(t *testing.T) {
 		updated.Profile.PrimarySportID != sportius.SportVolleyball ||
 		len(updated.Profile.SportIDs) != 1 {
 		t.Fatalf("updated club = %#v", updated)
+	}
+}
+
+func TestUpdateClubIsIdempotentAndRejectsRequestReuse(t *testing.T) {
+	fixture := newServiceFixture()
+	ctx := context.Background()
+	club := createClub(t, fixture, "owner", "create", "Original Club")
+	renamed := "Renamed Club"
+	request := sportius.UpdateClubRequest{RequestID: "same-update", Name: &renamed}
+	first, err := fixture.service.UpdateClub(ctx, "owner", club.Profile.SpaceID, request)
+	if err != nil {
+		t.Fatal(err)
+	}
+	replayed, err := fixture.service.UpdateClub(ctx, "owner", club.Profile.SpaceID, request)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if first.Profile.Name != renamed || replayed.Profile.Name != renamed || len(fixture.core.updatedNames) != 1 {
+		t.Fatalf("first=%#v replay=%#v rename calls=%#v", first.Profile, replayed.Profile, fixture.core.updatedNames)
+	}
+	different := "Different Club"
+	if _, err = fixture.service.UpdateClub(ctx, "owner", club.Profile.SpaceID, sportius.UpdateClubRequest{
+		RequestID: "same-update", Name: &different,
+	}); !errors.Is(err, ErrConflict) {
+		t.Fatalf("request reuse error=%v", err)
 	}
 }
 

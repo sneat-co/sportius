@@ -31,6 +31,9 @@ func TestCreateSearchUpdateTeamAndAllowDuplicateNames(t *testing.T) {
 		len(first.Staff) != 1 {
 		t.Fatalf("created team = %#v", first)
 	}
+	if len(first.ViewerRoleIDs) != 1 || first.ViewerRoleIDs[0] != sportius.RoleCoach {
+		t.Fatalf("creator viewer roles = %#v", first.ViewerRoleIDs)
+	}
 	if len(fixture.core.createSpaces) != 1 || fixture.core.createSpaces[0].OwnerUserID != "owner" {
 		t.Fatalf("space creation calls = %#v", fixture.core.createSpaces)
 	}
@@ -54,12 +57,16 @@ func TestCreateSearchUpdateTeamAndAllowDuplicateNames(t *testing.T) {
 	if len(results) != 1 || results[0].SpaceID != first.Profile.SpaceID {
 		t.Fatalf("search results = %#v", results)
 	}
+	if results[0].JoinPolicy != sportius.JoinPolicyOpen {
+		t.Fatalf("search join policy = %q", results[0].JoinPolicy)
+	}
 
 	renamed := "Limerick Celtics U14 Girls"
 	mixed := sportius.GenderMixed
 	updated, err := fixture.service.UpdateTeam(ctx, "owner", first.Profile.SpaceID, sportius.UpdateTeamRequest{
-		Name:   &renamed,
-		Gender: &mixed,
+		RequestID: "update-team-1",
+		Name:      &renamed,
+		Gender:    &mixed,
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -229,16 +236,41 @@ func TestUpdateTeamRenameRequestIDsAreVersionedAcrossABA(t *testing.T) {
 	ctx := context.Background()
 	team := createTeam(t, fixture, "owner", "create", "A", sportius.JoinPolicyOpen)
 	b := "B"
-	if _, err := fixture.service.UpdateTeam(ctx, "owner", team.Profile.SpaceID, sportius.UpdateTeamRequest{Name: &b}); err != nil {
+	if _, err := fixture.service.UpdateTeam(ctx, "owner", team.Profile.SpaceID, sportius.UpdateTeamRequest{RequestID: "rename-b", Name: &b}); err != nil {
 		t.Fatal(err)
 	}
 	a := "A"
-	if _, err := fixture.service.UpdateTeam(ctx, "owner", team.Profile.SpaceID, sportius.UpdateTeamRequest{Name: &a}); err != nil {
+	if _, err := fixture.service.UpdateTeam(ctx, "owner", team.Profile.SpaceID, sportius.UpdateTeamRequest{RequestID: "rename-a", Name: &a}); err != nil {
 		t.Fatal(err)
 	}
 	if len(fixture.core.updatedNames) != 2 ||
 		fixture.core.updatedNames[0].RequestID == fixture.core.updatedNames[1].RequestID {
 		t.Fatalf("ABA rename keys = %#v", fixture.core.updatedNames)
+	}
+}
+
+func TestUpdateTeamIsIdempotentAndRejectsRequestReuse(t *testing.T) {
+	fixture := newServiceFixture()
+	ctx := context.Background()
+	team := createTeam(t, fixture, "owner", "create", "Original", sportius.JoinPolicyOpen)
+	renamed := "Renamed"
+	request := sportius.UpdateTeamRequest{RequestID: "same-update", Name: &renamed}
+	first, err := fixture.service.UpdateTeam(ctx, "owner", team.Profile.SpaceID, request)
+	if err != nil {
+		t.Fatal(err)
+	}
+	replayed, err := fixture.service.UpdateTeam(ctx, "owner", team.Profile.SpaceID, request)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if first.Profile.Name != renamed || replayed.Profile.Name != renamed || len(fixture.core.updatedNames) != 1 {
+		t.Fatalf("first=%#v replay=%#v rename calls=%#v", first.Profile, replayed.Profile, fixture.core.updatedNames)
+	}
+	different := "Different"
+	if _, err = fixture.service.UpdateTeam(ctx, "owner", team.Profile.SpaceID, sportius.UpdateTeamRequest{
+		RequestID: "same-update", Name: &different,
+	}); !errors.Is(err, ErrConflict) {
+		t.Fatalf("request reuse error=%v", err)
 	}
 }
 
@@ -273,7 +305,7 @@ func TestTeamManagementRequiresMembership(t *testing.T) {
 	fixture := newServiceFixture()
 	team := createTeam(t, fixture, "owner", "create", "Managed Team", sportius.JoinPolicyOpen)
 	name := "Unauthorised rename"
-	_, err := fixture.service.UpdateTeam(context.Background(), "outsider", team.Profile.SpaceID, sportius.UpdateTeamRequest{Name: &name})
+	_, err := fixture.service.UpdateTeam(context.Background(), "outsider", team.Profile.SpaceID, sportius.UpdateTeamRequest{RequestID: "outsider", Name: &name})
 	if !errors.Is(err, ErrForbidden) {
 		t.Fatalf("error = %v, want ErrForbidden", err)
 	}

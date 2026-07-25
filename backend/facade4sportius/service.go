@@ -302,6 +302,8 @@ func (s *Service) CreateTeam(ctx context.Context, actorUserID string, request sp
 		GuardianRequests:               make(map[string]string),
 		GuardianRequestFingerprints:    make(map[string]string),
 		RoleRequestFingerprints:        make(map[string]string),
+		UpdateRequestFingerprints:      make(map[string]string),
+		UpdateRequestVersions:          make(map[string]uint64),
 		JoinCommandFingerprints:        make(map[string]string),
 		LinkRequestFingerprints:        make(map[string]string),
 		GuardianLinks:                  make(map[string][]models4sportius.GuardianLink),
@@ -322,7 +324,7 @@ func (s *Service) CreateTeam(ctx context.Context, actorUserID string, request sp
 	}); err != nil {
 		return sportius.TeamView{}, err
 	}
-	return buildTeamView(record, true, true), nil
+	return buildTeamView(record, true, true, record.MemberUserRoles[actorUserID]), nil
 }
 
 func (s *Service) GetTeam(ctx context.Context, actorUserID, spaceID string) (sportius.TeamView, error) {
@@ -337,6 +339,9 @@ func (s *Service) GetTeam(ctx context.Context, actorUserID, spaceID string) (spo
 
 func (s *Service) UpdateTeam(ctx context.Context, actorUserID, spaceID string, request sportius.UpdateTeamRequest) (sportius.TeamView, error) {
 	if err := validateActor(actorUserID); err != nil {
+		return sportius.TeamView{}, err
+	}
+	if err := validateRequestID(request.RequestID); err != nil {
 		return sportius.TeamView{}, err
 	}
 	current, err := s.managedTeam(ctx, actorUserID, spaceID)
@@ -405,11 +410,43 @@ func (s *Service) UpdateTeam(ctx context.Context, actorUserID, spaceID string, r
 		}
 		patch.joinPolicy = &value
 	}
+	updateKey := commandRequestKey("team-update", actorUserID, request.RequestID)
+	updateFingerprint := commandFingerprint(request)
+	completed := false
+	if err = s.repository.Update(ctx, func(writer RepositoryWriter) error {
+		stored, ok := writer.GetTeam(spaceID)
+		if !ok {
+			return ErrNotFound
+		}
+		if existing := stored.UpdateRequestFingerprints[updateKey]; existing != "" {
+			if existing != updateFingerprint {
+				return ErrConflict
+			}
+			if stored.UpdateRequestVersions[updateKey] != 0 {
+				current = stored
+				completed = true
+			}
+			return nil
+		}
+		if stored.UpdateRequestFingerprints == nil {
+			stored.UpdateRequestFingerprints = make(map[string]string)
+		}
+		if stored.UpdateRequestVersions == nil {
+			stored.UpdateRequestVersions = make(map[string]uint64)
+		}
+		stored.UpdateRequestFingerprints[updateKey] = updateFingerprint
+		writer.PutTeam(stored)
+		current = stored
+		return nil
+	}); err != nil {
+		return sportius.TeamView{}, mapRepositoryError(err)
+	}
+	if completed {
+		return buildTeamView(current, true, true, current.MemberUserRoles[actorUserID]), nil
+	}
 	if patch.name != nil && *patch.name != current.Profile.Name {
 		if err = s.core.UpdateSpaceName(ctx, UpdateSpaceNameInput{
-			RequestID: updateRequestID(
-				"team-name", actorUserID, spaceID, current.ProfileVersion, *patch.name,
-			),
+			RequestID:   updateKey + ":space-name",
 			SpaceID:     spaceID,
 			Name:        *patch.name,
 			ActorUserID: actorUserID,
@@ -423,15 +460,23 @@ func (s *Service) UpdateTeam(ctx context.Context, actorUserID, spaceID string, r
 		if !ok {
 			return ErrNotFound
 		}
+		if stored.UpdateRequestFingerprints[updateKey] != updateFingerprint {
+			return ErrConflict
+		}
+		if stored.UpdateRequestVersions[updateKey] != 0 {
+			updated = stored
+			return nil
+		}
 		applyTeamProfilePatch(&stored.Profile, patch)
 		stored.ProfileVersion++
+		stored.UpdateRequestVersions[updateKey] = stored.ProfileVersion
 		writer.PutTeam(stored)
 		updated = stored
 		return nil
 	}); err != nil {
 		return sportius.TeamView{}, err
 	}
-	return buildTeamView(updated, true, true), nil
+	return buildTeamView(updated, true, true, updated.MemberUserRoles[actorUserID]), nil
 }
 
 type teamProfilePatch struct {
@@ -786,6 +831,8 @@ func (s *Service) CreateClub(ctx context.Context, actorUserID string, request sp
 		ParticipantRequests:            make(map[string]string),
 		ParticipantRequestFingerprints: make(map[string]string),
 		RoleRequestFingerprints:        make(map[string]string),
+		UpdateRequestFingerprints:      make(map[string]string),
+		UpdateRequestVersions:          make(map[string]uint64),
 		TeamSpaceIDs:                   make(map[string]bool),
 		ClubManagerRosterTeamIDs:       make(map[string]bool),
 	}
@@ -819,6 +866,9 @@ func (s *Service) GetClub(ctx context.Context, actorUserID, spaceID string) (spo
 
 func (s *Service) UpdateClub(ctx context.Context, actorUserID, spaceID string, request sportius.UpdateClubRequest) (sportius.ClubView, error) {
 	if err := validateActor(actorUserID); err != nil {
+		return sportius.ClubView{}, err
+	}
+	if err := validateRequestID(request.RequestID); err != nil {
 		return sportius.ClubView{}, err
 	}
 	current, err := s.managedClub(ctx, actorUserID, spaceID)
@@ -877,11 +927,43 @@ func (s *Service) UpdateClub(ctx context.Context, actorUserID, spaceID string, r
 		}
 		patch.setMedia = true
 	}
+	updateKey := commandRequestKey("club-update", actorUserID, request.RequestID)
+	updateFingerprint := commandFingerprint(request)
+	completed := false
+	if err = s.repository.Update(ctx, func(writer RepositoryWriter) error {
+		stored, ok := writer.GetClub(spaceID)
+		if !ok {
+			return ErrNotFound
+		}
+		if existing := stored.UpdateRequestFingerprints[updateKey]; existing != "" {
+			if existing != updateFingerprint {
+				return ErrConflict
+			}
+			if stored.UpdateRequestVersions[updateKey] != 0 {
+				current = stored
+				completed = true
+			}
+			return nil
+		}
+		if stored.UpdateRequestFingerprints == nil {
+			stored.UpdateRequestFingerprints = make(map[string]string)
+		}
+		if stored.UpdateRequestVersions == nil {
+			stored.UpdateRequestVersions = make(map[string]uint64)
+		}
+		stored.UpdateRequestFingerprints[updateKey] = updateFingerprint
+		writer.PutClub(stored)
+		current = stored
+		return nil
+	}); err != nil {
+		return sportius.ClubView{}, mapRepositoryError(err)
+	}
+	if completed {
+		return s.clubView(ctx, actorUserID, spaceID)
+	}
 	if patch.name != nil && *patch.name != current.Profile.Name {
 		if err = s.core.UpdateSpaceName(ctx, UpdateSpaceNameInput{
-			RequestID: updateRequestID(
-				"club-name", actorUserID, spaceID, current.ProfileVersion, *patch.name,
-			),
+			RequestID:   updateKey + ":space-name",
 			SpaceID:     spaceID,
 			Name:        *patch.name,
 			ActorUserID: actorUserID,
@@ -894,8 +976,15 @@ func (s *Service) UpdateClub(ctx context.Context, actorUserID, spaceID string, r
 		if !ok {
 			return ErrNotFound
 		}
+		if stored.UpdateRequestFingerprints[updateKey] != updateFingerprint {
+			return ErrConflict
+		}
+		if stored.UpdateRequestVersions[updateKey] != 0 {
+			return nil
+		}
 		applyClubProfilePatch(&stored.Profile, patch)
 		stored.ProfileVersion++
+		stored.UpdateRequestVersions[updateKey] = stored.ProfileVersion
 		writer.PutClub(stored)
 		return nil
 	}); err != nil {

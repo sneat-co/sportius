@@ -518,7 +518,8 @@ func TestProfileUpdatesPatchLatestRecordWithoutLosingConcurrentFields(t *testing
 	}
 	teamName := "Renamed Team"
 	updatedTeam, err := service.UpdateTeam(ctx, "owner", team.Profile.SpaceID, sportius.UpdateTeamRequest{
-		Name: &teamName,
+		RequestID: "rename-team",
+		Name:      &teamName,
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -540,7 +541,8 @@ func TestProfileUpdatesPatchLatestRecordWithoutLosingConcurrentFields(t *testing
 	}
 	clubName := "Renamed Club"
 	updatedClub, err := service.UpdateClub(ctx, "owner", club.Profile.SpaceID, sportius.UpdateClubRequest{
-		Name: &clubName,
+		RequestID: "rename-club",
+		Name:      &clubName,
 	})
 	if err != nil {
 		t.Fatal(err)

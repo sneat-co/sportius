@@ -334,17 +334,6 @@ func fingerprintSports(values []sportius.SportID) []sportius.SportID {
 	return result
 }
 
-func updateRequestID(kind, actorUserID, spaceID string, profileVersion uint64, value any) string {
-	return fmt.Sprintf(
-		"sportius:%s:%s:%s:%d:%s",
-		kind,
-		actorUserID,
-		spaceID,
-		profileVersion,
-		commandFingerprint(value)[:24],
-	)
-}
-
 func sortTeamBriefs(values []sportius.TeamBrief) {
 	sort.Slice(values, func(i, j int) bool {
 		left, right := normaliseName(values[i].Name), normaliseName(values[j].Name)

@@ -22,10 +22,11 @@ func personalSports(record models4sportius.PersonalProfileRecord) []sportius.Per
 
 func teamBrief(profile sportius.TeamProfile) sportius.TeamBrief {
 	brief := sportius.TeamBrief{
-		SpaceID: profile.SpaceID,
-		Name:    profile.Name,
-		SportID: profile.SportID,
-		Gender:  profile.Gender,
+		SpaceID:    profile.SpaceID,
+		Name:       profile.Name,
+		SportID:    profile.SportID,
+		Gender:     profile.Gender,
+		JoinPolicy: profile.JoinPolicy,
 	}
 	if profile.Age != nil {
 		age := *profile.Age
@@ -87,13 +88,18 @@ func clubSearchRecord(profile sportius.ClubProfile) models4sportius.ClubSearchRe
 	}
 }
 
-func buildTeamView(record models4sportius.TeamRecord, includeParticipants, canManage bool) sportius.TeamView {
+func buildTeamView(
+	record models4sportius.TeamRecord,
+	includeParticipants, canManage bool,
+	viewerRoleIDs []sportius.RoleID,
+) sportius.TeamView {
 	record = models4sportius.CloneTeamRecord(record)
 	view := sportius.TeamView{
-		Profile:      record.Profile,
-		Players:      []sportius.Participant{},
-		Staff:        []sportius.Participant{},
-		Capabilities: capabilities(canManage),
+		Profile:       record.Profile,
+		Players:       []sportius.Participant{},
+		Staff:         []sportius.Participant{},
+		ViewerRoleIDs: append([]sportius.RoleID(nil), viewerRoleIDs...),
+		Capabilities:  capabilities(canManage),
 	}
 	if !includeParticipants {
 		return view
@@ -207,7 +213,12 @@ func (s *Service) teamView(ctx context.Context, actorUserID, spaceID string) (sp
 	if err != nil {
 		return sportius.TeamView{}, err
 	}
-	return buildTeamView(record, access.IsMember || access.CanManage, access.CanManage), nil
+	return buildTeamView(
+		record,
+		access.IsMember || access.CanManage,
+		access.CanManage,
+		record.MemberUserRoles[actorUserID],
+	), nil
 }
 
 func (s *Service) clubView(ctx context.Context, actorUserID, spaceID string) (sportius.ClubView, error) {

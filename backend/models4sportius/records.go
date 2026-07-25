@@ -49,6 +49,8 @@ type TeamRecord struct {
 	GuardianRequests               map[string]string               `firestore:"guardianRequests" json:"guardianRequests"`
 	GuardianRequestFingerprints    map[string]string               `firestore:"guardianRequestFingerprints" json:"guardianRequestFingerprints"`
 	RoleRequestFingerprints        map[string]string               `firestore:"roleRequestFingerprints" json:"roleRequestFingerprints"`
+	UpdateRequestFingerprints      map[string]string               `firestore:"updateRequestFingerprints" json:"updateRequestFingerprints"`
+	UpdateRequestVersions          map[string]uint64               `firestore:"updateRequestVersions" json:"updateRequestVersions"`
 	JoinCommandFingerprints        map[string]string               `firestore:"joinCommandFingerprints" json:"joinCommandFingerprints"`
 	LinkRequestFingerprints        map[string]string               `firestore:"linkRequestFingerprints" json:"linkRequestFingerprints"`
 	GuardianLinks                  map[string][]GuardianLink       `firestore:"guardianLinks" json:"guardianLinks"`
@@ -86,6 +88,8 @@ type ClubRecord struct {
 	ParticipantRequests            map[string]string               `firestore:"participantRequests" json:"participantRequests"`
 	ParticipantRequestFingerprints map[string]string               `firestore:"participantRequestFingerprints" json:"participantRequestFingerprints"`
 	RoleRequestFingerprints        map[string]string               `firestore:"roleRequestFingerprints" json:"roleRequestFingerprints"`
+	UpdateRequestFingerprints      map[string]string               `firestore:"updateRequestFingerprints" json:"updateRequestFingerprints"`
+	UpdateRequestVersions          map[string]uint64               `firestore:"updateRequestVersions" json:"updateRequestVersions"`
 	TeamSpaceIDs                   map[string]bool                 `firestore:"teamSpaceIDs" json:"teamSpaceIDs"`
 	ClubManagerRosterTeamIDs       map[string]bool                 `firestore:"clubManagerRosterTeamIDs" json:"clubManagerRosterTeamIDs"`
 }
@@ -141,6 +145,8 @@ func CloneTeamRecord(v TeamRecord) TeamRecord {
 		GuardianRequests:               cloneStringMap(v.GuardianRequests),
 		GuardianRequestFingerprints:    cloneStringMap(v.GuardianRequestFingerprints),
 		RoleRequestFingerprints:        cloneStringMap(v.RoleRequestFingerprints),
+		UpdateRequestFingerprints:      cloneStringMap(v.UpdateRequestFingerprints),
+		UpdateRequestVersions:          cloneUint64Map(v.UpdateRequestVersions),
 		JoinCommandFingerprints:        cloneStringMap(v.JoinCommandFingerprints),
 		LinkRequestFingerprints:        cloneStringMap(v.LinkRequestFingerprints),
 		GuardianLinks:                  make(map[string][]GuardianLink, len(v.GuardianLinks)),
@@ -170,6 +176,8 @@ func CloneClubRecord(v ClubRecord) ClubRecord {
 		ParticipantRequests:            cloneStringMap(v.ParticipantRequests),
 		ParticipantRequestFingerprints: cloneStringMap(v.ParticipantRequestFingerprints),
 		RoleRequestFingerprints:        cloneStringMap(v.RoleRequestFingerprints),
+		UpdateRequestFingerprints:      cloneStringMap(v.UpdateRequestFingerprints),
+		UpdateRequestVersions:          cloneUint64Map(v.UpdateRequestVersions),
 		TeamSpaceIDs:                   cloneBoolMap(v.TeamSpaceIDs),
 		ClubManagerRosterTeamIDs:       cloneBoolMap(v.ClubManagerRosterTeamIDs),
 	}
@@ -275,6 +283,14 @@ func cloneBoolMap(v map[string]bool) map[string]bool {
 
 func cloneStringMap(v map[string]string) map[string]string {
 	result := make(map[string]string, len(v))
+	for key, value := range v {
+		result[key] = value
+	}
+	return result
+}
+
+func cloneUint64Map(v map[string]uint64) map[string]uint64 {
+	result := make(map[string]uint64, len(v))
 	for key, value := range v {
 		result[key] = value
 	}

@@ -58,7 +58,7 @@ func TestSportiusProjectionCannotGrantManagementAccess(t *testing.T) {
 		t.Fatal(err)
 	}
 	name := "Cross-space rename"
-	_, err = fixture.service.UpdateTeam(context.Background(), "outsider", team.Profile.SpaceID, sportius.UpdateTeamRequest{Name: &name})
+	_, err = fixture.service.UpdateTeam(context.Background(), "outsider", team.Profile.SpaceID, sportius.UpdateTeamRequest{RequestID: "outsider-team", Name: &name})
 	if !errors.Is(err, ErrForbidden) {
 		t.Fatalf("error = %v, want forbidden despite projection", err)
 	}
@@ -79,7 +79,7 @@ func TestSportiusProjectionCannotGrantManagementAccess(t *testing.T) {
 		t.Fatal(err)
 	}
 	clubName := "Cross-space club rename"
-	_, err = fixture.service.UpdateClub(context.Background(), "outsider", club.Profile.SpaceID, sportius.UpdateClubRequest{Name: &clubName})
+	_, err = fixture.service.UpdateClub(context.Background(), "outsider", club.Profile.SpaceID, sportius.UpdateClubRequest{RequestID: "outsider-club", Name: &clubName})
 	if !errors.Is(err, ErrForbidden) {
 		t.Fatalf("club error = %v, want forbidden despite projection", err)
 	}
@@ -102,11 +102,12 @@ func TestExplicitClearFlagsAndRichTeamBrief(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(briefs) != 1 || briefs[0].Gender != sportius.GenderFemale || briefs[0].Age == nil || briefs[0].Locality != "Limerick" {
+	if len(briefs) != 1 || briefs[0].Gender != sportius.GenderFemale || briefs[0].Age == nil ||
+		briefs[0].Locality != "Limerick" || briefs[0].JoinPolicy != sportius.JoinPolicyOpen {
 		t.Fatalf("rich brief = %#v", briefs)
 	}
 	cleared, err := fixture.service.UpdateTeam(context.Background(), "owner", team.Profile.SpaceID, sportius.UpdateTeamRequest{
-		ClearAge: true, ClearLocation: true, ClearMedia: true,
+		RequestID: "clear-team", ClearAge: true, ClearLocation: true, ClearMedia: true,
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -124,6 +125,7 @@ func TestExplicitClearFlagsAndRichTeamBrief(t *testing.T) {
 		t.Fatal(err)
 	}
 	clubCleared, err := fixture.service.UpdateClub(context.Background(), "owner", club.Profile.SpaceID, sportius.UpdateClubRequest{
+		RequestID:         "clear-club",
 		ClearPrimarySport: true, ReplaceSportIDs: true, SportIDs: []sportius.SportID{},
 		ClearLocation: true, ClearMedia: true,
 	})
