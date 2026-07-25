@@ -15,8 +15,8 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@sneat/extension-template": [
-        "./libs/extensions/template/runtime/src/index.ts"
+      "@sneat/extension-sportius": [
+        "./libs/extensions/sportius/runtime/src/index.ts"
       ]
     }
   },

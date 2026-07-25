@@ -13,7 +13,7 @@ import type { Copy } from './types';
 
 export const en: Copy = {
   site: {
-    brand: 'Template',
+    brand: 'Sportius',
     // tld: '.app',
     headline: 'A clear, benefit-led',
     headlineAccent: 'headline.',
@@ -23,7 +23,7 @@ export const en: Copy = {
     ctaPrimary: 'Get started free',
     ctaSecondary: 'See how it works',
     microcopy: '✨ A few trust signals · 🔒 Privacy-first · 🆓 Free to start',
-    seoTitle: 'Template — a short, benefit-led tagline.',
+    seoTitle: 'Sportius — a short, benefit-led tagline.',
     seoDescription:
       "One or two sentences describing what your product does and who it's for. This is the default meta description; override it per page.",
   },
@@ -102,9 +102,9 @@ export const en: Copy = {
   },
 
   privacyPage: {
-    seoTitle: 'Privacy — Template',
+    seoTitle: 'Privacy — Sportius',
     seoDescription:
-      'How Template handles your information: privacy-first, you own your data.',
+      'How Sportius handles your information: privacy-first, you own your data.',
     eyebrow: 'Privacy',
     title: 'Your information, handled with care',
     lede: 'TODO(copy): write your privacy stance. Keep it plain-language and honest. Below are starter headings you can adapt.',
@@ -133,9 +133,9 @@ export const en: Copy = {
   // are NOT (not a bank, not a broker, not the organiser) before you say
   // anything else. Delete the sections that don't apply.
   termsPage: {
-    seoTitle: 'Terms — Template',
+    seoTitle: 'Terms — Sportius',
     seoDescription:
-      'The rules of the road for using Template: what you agree to, and what we owe you.',
+      'The rules of the road for using Sportius: what you agree to, and what we owe you.',
     eyebrow: 'Terms',
     title: 'The rules of the road',
     lede: "TODO(copy): write the deal in plain English — what someone is agreeing to by using this, and what you owe them back. Written to be read, not to be defensible.",
@@ -171,7 +171,7 @@ export const en: Copy = {
   a11y: {
     skipToContent: 'Skip to content',
     primaryNav: 'Primary',
-    brandHome: 'Template home',
+    brandHome: 'Sportius home',
     productNav: 'Product',
     moreNav: 'More',
   },

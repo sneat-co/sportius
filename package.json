@@ -1,5 +1,5 @@
 {
-  "name": "@sneat/template-frontend",
+  "name": "@sneat/sportius-frontend",
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {},
@@ -39,8 +39,8 @@
     "@sneat/extension-contactus-contract": "0.12.2",
     "@sneat/extension-contactus": "^0.13.0",
     "@sneat/extension-contactus-ui": "^0.13.0",
-    "@sneat/extension-template": "workspace:*",
-    "@sneat/extension-template-contract": "^0.1.0",
+    "@sneat/extension-sportius": "workspace:*",
+    "@sneat/extension-sportius-contract": "^0.1.0",
     "@sneat/grid": "0.22.1",
     "@sneat/logging": "0.22.1",
     "@sneat/mod-assetus-core": "0.11.0",

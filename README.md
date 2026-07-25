@@ -1,80 +1,61 @@
-# sneat-ext-template
+# Sportius
 
-Starter implementation repository for a Sneat extension. It contains an Nx
-workspace, Angular/Ionic app, and one host-facing runtime package.
+Sportius is the Sneat extension behind [Sneat Club](https://sneat.club). It
+owns persistent sporting organisations and profiles: personal sports, teams,
+clubs, participant roles, rosters, guardians, join policy, invitations, and
+team-to-club affiliation.
 
-## Repository model
+The first production surface is the existing Sneat Telegram bot. Telegram
+presentation lives in [`sneat-bots`](https://github.com/sneat-co/sneat-bots);
+it calls the facade implemented here through the stable
+[`ext-sportius`](https://github.com/sneat-co/ext-sportius) contract.
 
-- `<id>` owns the implementation app and `@sneat/extension-<id>` runtime.
-- `ext-<id>` owns the public `@sneat/extension-<id>-contract` package.
+## Domain boundary
 
-The implementation never copies contract source. It consumes the published
-contract package just as another extension would.
+- A team and a club are independent Sneat spaces.
+- Generic space linkages are authoritative for team-to-club affiliation.
+- ToGethered owns reusable places, venues, attendance, and activity intent.
+  Sportius stores a narrow location hint and may reference a ToGethered spot.
+- GameBoard owns games, participation in a game, and scoring.
+- MatchUps owns competitions, leagues, cups, divisions, and fixtures.
+- Sportus is a separate legacy wind-sports/equipment extension. Its staged
+  retirement is tracked in Backstage; it is not renamed into Sportius.
 
-## Layout
+## Repository layout
 
 ```text
-apps/
-  template-app/        # Ionic composition root
-  template-app-e2e/    # Playwright harness
-libs/extensions/template/
-  runtime/             # @sneat/extension-template
-landings/               # Astro marketing site (see landings/README.md)
-backend/                # Go domain module (see backend/README.md)
+backend/                # Go business facade, validation, repositories and ports
+spec/                   # SpecScore feature definitions
+apps/sportius-app/      # Reserved web composition root; not in Telegram MVP
+libs/extensions/sportius/
+  runtime/              # Reserved web runtime package
+landings/               # Reserved product landing scaffold
 ```
 
-The corresponding [`sneat-ext-contract-template`](../sneat-ext-contract-template)
-repository owns
-`@sneat/extension-template-contract`.
+The MVP is specified under
+[`spec/features/sneat-club-telegram`](spec/features/sneat-club-telegram/README.md).
+The cross-repository implementation plan and living initiative record are in
+[`sneat-co/backstage`](https://github.com/sneat-co/backstage).
 
 ## Backend
 
-`backend/` is a Go domain module (`github.com/sneat-co/template/backend`) built
-to the org's
-[ports-and-adapters standard](https://github.com/sneat-co/sneat-specs/blob/main/standards/extension-backend-architecture.md):
-it depends on `dal-go/dalgo` only — never `sneat-go-core`, `sneat-core-modules`,
-or another extension's backend — and expresses platform/cross-extension needs
-as ports, satisfied by adapters in the host composition root (`sneat-go`). See
-[`backend/README.md`](backend/README.md).
-
-CI (`.github/workflows/backend-ci.yml`) runs lint/test/build on every push and
-PR touching `backend/**`, and auto-tags the next `backend/vX.Y.Z` release on
-push to `main`.
-
-This is distinct from `ext-<id>`'s own `backend/` (the **contract** module —
-`dto4<id>` types, briefs, facade interfaces). This one is the
-**implementation** — DBOs, storage, facade bodies.
-
-## Runtime API
-
-The runtime package is deliberately an application-integration surface. Its
-root entry point exports provider functions and route arrays only. It does not
-export concrete services, pages, or components for other extension libraries to
-consume.
-
-```ts
-import { provideTemplate, templateSpaceRoutes } from '@sneat/extension-template';
-
-bootstrapApplication(App, {
-  providers: [...provideTemplate(), provideRouter(templateSpaceRoutes)],
-});
-```
-
-Extension libraries use contract tokens; only the app composition root imports a
-different extension's runtime package. Reusable components deserve a separate
-`@sneat/extension-<id>-ui` package only when another extension needs them.
-
-## Create a new extension
-
-Clone this repository as `<id>`, rename `template` with `./customize.sh <id>`,
-and create a paired `ext-<id>` repository from `sneat-ext-contract-template`. Publish the
-contract first, update the implementation's dependency range, then build:
+`backend/` is the Go module `github.com/sneat-co/sportius/backend`. It
+implements `github.com/sneat-co/ext-sportius/backend.Facade` behind repository
+and host-platform ports. The Sneat host supplies adapters for spaces, contacts,
+membership, invitations, and generic linkages.
 
 ```sh
-pnpm install
-pnpm exec nx run-many -t lint test build
-(cd backend && go build ./... && go test ./...)
+cd backend
+go test ./...
+go vet ./...
 ```
 
-See the [extension standards](https://github.com/sneat-co/sneat-libs/tree/main/docs/extension-standards)
-for dependency rules and release sequencing.
+Public DTOs, catalogues, and facade interfaces remain in `ext-sportius`; no
+contract source is copied here.
+
+## Web status
+
+The generated Angular and landing packages are deliberately not a production
+surface in this initiative. Public web onboarding, dashboards, profiles, SEO,
+and short links are deferred. Automatic web deployment is disabled until a
+separate web initiative replaces the generated scaffold with real Sportius UI.
