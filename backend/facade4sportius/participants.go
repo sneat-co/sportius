@@ -2,6 +2,7 @@ package facade4sportius
 
 import (
 	"context"
+	"sort"
 	"strings"
 
 	sportius "github.com/sneat-co/ext-sportius/backend"
@@ -229,6 +230,36 @@ func (s *Service) GetTeamPlayer(ctx context.Context, actorUserID, spaceID, playe
 		return sportius.PlayerView{}, err
 	}
 	return playerView(team, playerContactID)
+}
+
+func (s *Service) ListTeamGuardians(ctx context.Context, actorUserID, spaceID string) ([]sportius.ContactBrief, error) {
+	if err := validateActor(actorUserID); err != nil {
+		return nil, err
+	}
+	team, err := s.managedTeam(ctx, actorUserID, spaceID)
+	if err != nil {
+		return nil, err
+	}
+	guardians := make([]sportius.ContactBrief, 0)
+	for _, participant := range team.Participants {
+		if !hasRole(participant.RoleIDs, sportius.RoleParentGuardian) {
+			continue
+		}
+		guardians = append(guardians, sportius.ContactBrief{
+			ContactID:   participant.ContactID,
+			UserID:      participant.UserID,
+			DisplayName: participant.DisplayName,
+		})
+	}
+	sort.Slice(guardians, func(i, j int) bool {
+		left := strings.ToLower(guardians[i].DisplayName)
+		right := strings.ToLower(guardians[j].DisplayName)
+		if left == right {
+			return guardians[i].ContactID < guardians[j].ContactID
+		}
+		return left < right
+	})
+	return guardians, nil
 }
 
 func (s *Service) LinkGuardian(

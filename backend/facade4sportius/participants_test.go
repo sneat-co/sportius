@@ -161,8 +161,31 @@ func TestAddStaffLinkGuardianAndReadPlayerView(t *testing.T) {
 	if err != nil || len(read.Guardians) != 1 {
 		t.Fatalf("read player=%#v err=%v", read, err)
 	}
+	guardians, err := fixture.service.ListTeamGuardians(context.Background(), "owner", team.Profile.SpaceID)
+	if err != nil || len(guardians) != 1 || guardians[0].ContactID != guardianContactID {
+		t.Fatalf("guardians=%#v err=%v", guardians, err)
+	}
+	if _, err = fixture.service.ListTeamGuardians(context.Background(), "outsider", team.Profile.SpaceID); !errors.Is(err, ErrForbidden) {
+		t.Fatalf("outsider list guardians error=%v", err)
+	}
+	secondPlayer, err := fixture.service.AddTeamPlayer(context.Background(), "owner", team.Profile.SpaceID, sportius.AddPlayerRequest{
+		RequestID: "player-two", DisplayName: "Alex",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	secondLinked, err := fixture.service.LinkGuardian(context.Background(), "owner", team.Profile.SpaceID, secondPlayer.Player.ContactID, sportius.LinkGuardianRequest{
+		RequestID: "guardian-reuse", GuardianContactID: guardianContactID,
+		GuardianDisplayName: guardians[0].DisplayName, RelationshipRoleID: "parent",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(secondLinked.Guardians) != 1 || secondLinked.Guardians[0].Contact.ContactID != guardianContactID {
+		t.Fatalf("reused guardian link=%#v", secondLinked)
+	}
 	view, _ := fixture.service.GetTeam(context.Background(), "owner", team.Profile.SpaceID)
-	if len(view.Players) != 1 || len(view.Staff) != 2 {
+	if len(view.Players) != 2 || len(view.Staff) != 2 {
 		t.Fatalf("team view = %#v", view)
 	}
 }
