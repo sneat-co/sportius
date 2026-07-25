@@ -52,7 +52,10 @@ suggested participant roles separately.
 Invitees may accept, remove or add Sportius roles (including none). Acceptance MUST
 apply those roles to the contact claimed by Invitus and MUST NOT create a second
 contact. Invalid or expired invitations create neither membership nor Sportius
-participant projections.
+participant projections. Inspection and acceptance MUST validate the opaque
+claim proof from the delivery link (currently the Invitus PIN); an invitation
+ID alone is insufficient. The full delivery link is returned only to the
+creator and MUST NOT be persisted in Sportius projections or callback data.
 
 ## Acceptance Criteria
 
@@ -82,6 +85,14 @@ team-space membership.
 **When** Mia accepts through Telegram and confirms no Sportius role,
 **Then** Invitus binds her user to that contact, generic membership is created,
 Sportius records the same contact identity, and no duplicate Mia contact exists.
+
+### AC: invite-requires-delivery-proof (verifies REQ:invitations)
+
+**Given** a valid pending invitation ID,
+**When** an actor inspects or accepts it without the delivery claim token or with
+an incorrect token,
+**Then** no participant, membership or invitation projection changes and the
+token is not logged, rendered or placed in Telegram callback data.
 
 ## Open Questions
 
