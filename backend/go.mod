@@ -5,7 +5,7 @@ go 1.26
 require (
 	github.com/dal-go/dalgo v0.63.1
 	github.com/dal-go/record v0.1.0
-	github.com/sneat-co/ext-sportius/backend v0.0.0-20260725202243-51a9e3300c54
+	github.com/sneat-co/ext-sportius/backend v0.0.0-20260725211527-8938d25cccd2
 )
 
 require (
