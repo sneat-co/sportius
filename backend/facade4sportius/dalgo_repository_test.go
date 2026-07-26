@@ -71,7 +71,13 @@ func TestDalgoRepositoryPersistsCanonicalDocumentsAndIndexes(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	assertDalgoRecordExists(t, db, profileKey("owner"), new(models4sportius.PersonalProfileRecord))
+	storedPersonalExtension := new(spaceExtensionDBO)
+	assertDalgoRecordExists(t, db, spaceExtensionKey("personal-owner"), storedPersonalExtension)
+	if storedPersonalExtension.Personal == nil ||
+		storedPersonalExtension.Personal.SpaceID != "personal-owner" ||
+		storedPersonalExtension.Personal.UserID != "owner" {
+		t.Fatalf("personal profile is not owned by the personal Space: %#v", storedPersonalExtension.Personal)
+	}
 	storedTeamExtension := new(spaceExtensionDBO)
 	assertDalgoRecordExists(t, db, spaceExtensionKey(team.Profile.SpaceID), storedTeamExtension)
 	if storedTeamExtension.Team == nil || len(storedTeamExtension.Team.LinkRequestFingerprints) != 1 {
@@ -116,6 +122,37 @@ func TestDalgoRepositoryPersistsCanonicalDocumentsAndIndexes(t *testing.T) {
 	)
 	if err != nil || inviteView.Status != sportius.InvitationStatusPending {
 		t.Fatalf("invite=%#v err=%v", inviteView, err)
+	}
+}
+
+func TestDalgoRepositoryLazilyMigratesLegacyUserProfileToPersonalSpace(t *testing.T) {
+	ctx := context.Background()
+	db := dalgo2memory.NewDB()
+	legacy := profileRecord("owner", sportius.SportBasketball)
+	legacy.SpaceID = ""
+	if err := db.RunReadwriteTransaction(ctx, func(ctx context.Context, tx dal.ReadwriteTransaction) error {
+		return tx.Set(ctx, dalrecord.NewRecordWithData(legacyProfileKey("owner"), &legacy))
+	}); err != nil {
+		t.Fatal(err)
+	}
+
+	service := NewService(NewDalgoRepository(db), newFakeCorePort())
+	profile, err := service.GetPersonalProfile(ctx, "owner")
+	if err != nil || len(profile.Sports) != 1 {
+		t.Fatalf("legacy profile=%#v err=%v", profile, err)
+	}
+	profile, err = service.PutPersonalSport(ctx, "owner", sportius.SportFootball, sportius.PutPersonalSportRequest{})
+	if err != nil || len(profile.Sports) != 2 {
+		t.Fatalf("migrated profile=%#v err=%v", profile, err)
+	}
+
+	stored := new(spaceExtensionDBO)
+	assertDalgoRecordExists(t, db, spaceExtensionKey("personal-owner"), stored)
+	if stored.Personal == nil ||
+		stored.Personal.SpaceID != "personal-owner" ||
+		stored.Personal.UserID != "owner" ||
+		len(stored.Personal.Sports) != 2 {
+		t.Fatalf("personal-Space profile after lazy migration = %#v", stored.Personal)
 	}
 }
 

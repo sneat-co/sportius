@@ -35,6 +35,10 @@ Sports MUST be reachable through normal Sneat bot navigation and `/sports`.
 My Sports, My Teams and My Clubs MUST each open a detailed entity-appropriate
 view. Home listings MUST be derived from authoritative generic space access and
 MUST NOT treat a stale Sportius participant projection as membership.
+Personal and family Space cards SHOULD expose the same Sports entry point.
+Those buttons are navigation only: a family entry MUST NOT aggregate or reveal
+members' team/club memberships unless each affiliation has been explicitly
+shared with or linked to the family Space.
 
 ## Acceptance Criteria
 
@@ -69,6 +73,14 @@ detail action exposes entries omitted from the compact summary.
 access,
 **When** Sports home renders,
 **Then** that team or club is absent.
+
+### AC: space-cards-open-sports-without-family-disclosure (verifies REQ:entry-and-navigation)
+
+**Given** an actor can open personal and family Space cards and has a private team
+membership,
+**When** either card offers Sports,
+**Then** the actor can open the Sports section and the family card alone does not
+publish or aggregate that private membership for other family members.
 
 ## Open Questions
 

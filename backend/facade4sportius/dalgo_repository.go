@@ -21,12 +21,13 @@ const (
 
 // DalgoRepository persists canonical extension documents at:
 //
-//	/users/{uid}/ext/sportius
 //	/spaces/{spaceID}/ext/sportius
 //
 // Search projections and invitation metadata live under the extension-owned
 // subtree /ext/sportius/{teams|clubs|invitations}/{id}. Generic Sneat spaces,
 // contacts, memberships, linkages and invitation tokens are never stored here.
+// The former /users/{uid}/ext/sportius profile is read only as a lazy-migration
+// fallback; every subsequent profile write targets the personal Space.
 type DalgoRepository struct {
 	db dal.DB
 }
@@ -61,9 +62,10 @@ func (r *DalgoRepository) Update(ctx context.Context, fn func(RepositoryWriter) 
 }
 
 type spaceExtensionDBO struct {
-	Kind sportius.SpaceKind          `firestore:"kind" json:"kind"`
-	Team *models4sportius.TeamRecord `firestore:"team,omitempty" json:"team,omitempty"`
-	Club *models4sportius.ClubRecord `firestore:"club,omitempty" json:"club,omitempty"`
+	Kind     sportius.SpaceKind                     `firestore:"kind" json:"kind"`
+	Personal *models4sportius.PersonalProfileRecord `firestore:"personal,omitempty" json:"personal,omitempty"`
+	Team     *models4sportius.TeamRecord            `firestore:"team,omitempty" json:"team,omitempty"`
+	Club     *models4sportius.ClubRecord            `firestore:"club,omitempty" json:"club,omitempty"`
 }
 
 type dalgoRepositoryTx struct {
@@ -73,12 +75,19 @@ type dalgoRepositoryTx struct {
 	err    error
 }
 
-func (tx *dalgoRepositoryTx) GetPersonalProfile(userID string) (models4sportius.PersonalProfileRecord, bool) {
-	var value models4sportius.PersonalProfileRecord
-	if !tx.get(profileKey(userID), &value) {
+func (tx *dalgoRepositoryTx) GetPersonalProfile(ref PersonalProfileRef) (models4sportius.PersonalProfileRecord, bool) {
+	var extension spaceExtensionDBO
+	if tx.get(spaceExtensionKey(ref.SpaceID), &extension) && extension.Personal != nil {
+		return models4sportius.ClonePersonalProfileRecord(*extension.Personal), true
+	}
+	if tx.err != nil {
 		return models4sportius.PersonalProfileRecord{}, false
 	}
-	return models4sportius.ClonePersonalProfileRecord(value), true
+	var legacy models4sportius.PersonalProfileRecord
+	if !tx.get(legacyProfileKey(ref.UserID), &legacy) {
+		return models4sportius.PersonalProfileRecord{}, false
+	}
+	return models4sportius.ClonePersonalProfileRecord(legacy), true
 }
 
 func (tx *dalgoRepositoryTx) GetTeam(spaceID string) (models4sportius.TeamRecord, bool) {
@@ -225,7 +234,8 @@ func (tx *dalgoRepositoryTx) FindInvitationByRequest(actorUserID, requestID stri
 }
 
 func (tx *dalgoRepositoryTx) PutPersonalProfile(profile models4sportius.PersonalProfileRecord) {
-	tx.set(profileKey(profile.UserID), models4sportius.ClonePersonalProfileRecord(profile))
+	value := models4sportius.ClonePersonalProfileRecord(profile)
+	tx.set(spaceExtensionKey(profile.SpaceID), spaceExtensionDBO{Personal: &value})
 }
 
 func (tx *dalgoRepositoryTx) PutTeam(team models4sportius.TeamRecord) {
@@ -272,7 +282,7 @@ func (tx *dalgoRepositoryTx) set(key *dalrecord.Key, value any) {
 	tx.err = tx.writer.Set(tx.ctx, dalrecord.NewRecordWithData(key, value))
 }
 
-func profileKey(userID string) *dalrecord.Key {
+func legacyProfileKey(userID string) *dalrecord.Key {
 	return dalrecord.NewKeyWithParentAndID(dalrecord.NewKeyWithID(usersCollection, userID), extCollection, sportius.ExtensionID)
 }
 

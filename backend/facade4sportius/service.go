@@ -48,13 +48,17 @@ func (s *Service) GetHome(ctx context.Context, actorUserID string) (sportius.Spo
 	if err := validateActor(actorUserID); err != nil {
 		return sportius.SportsHome{}, err
 	}
+	profileRef, err := s.personalProfileRef(ctx, actorUserID)
+	if err != nil {
+		return sportius.SportsHome{}, err
+	}
 	spaces, err := s.core.ListUserSportSpaces(ctx, actorUserID)
 	if err != nil {
 		return sportius.SportsHome{}, coreFailure("sportius.error.user_spaces", err)
 	}
 	var home sportius.SportsHome
 	err = s.repository.View(ctx, func(reader RepositoryReader) error {
-		profile, ok := reader.GetPersonalProfile(actorUserID)
+		profile, ok := reader.GetPersonalProfile(profileRef)
 		if ok {
 			home.Sports = personalSports(profile)
 		}
@@ -92,9 +96,13 @@ func (s *Service) GetPersonalProfile(ctx context.Context, actorUserID string) (s
 	if err := validateActor(actorUserID); err != nil {
 		return sportius.PersonalSportsProfile{}, err
 	}
+	profileRef, err := s.personalProfileRef(ctx, actorUserID)
+	if err != nil {
+		return sportius.PersonalSportsProfile{}, err
+	}
 	profile := sportius.PersonalSportsProfile{UserID: actorUserID, Sports: []sportius.PersonalSport{}}
-	err := s.repository.View(ctx, func(reader RepositoryReader) error {
-		record, ok := reader.GetPersonalProfile(actorUserID)
+	err = s.repository.View(ctx, func(reader RepositoryReader) error {
+		record, ok := reader.GetPersonalProfile(profileRef)
 		if ok {
 			profile.Sports = personalSports(record)
 		}
@@ -114,6 +122,10 @@ func (s *Service) PutPersonalSport(ctx context.Context, actorUserID string, spor
 	if err != nil {
 		return sportius.PersonalSportsProfile{}, err
 	}
+	profileRef, err := s.personalProfileRef(ctx, actorUserID)
+	if err != nil {
+		return sportius.PersonalSportsProfile{}, err
+	}
 	visibility := request.Visibility
 	if visibility == "" {
 		visibility = sportius.VisibilityPrivate
@@ -123,13 +135,16 @@ func (s *Service) PutPersonalSport(ctx context.Context, actorUserID string, spor
 	}
 	record := models4sportius.PersonalProfileRecord{}
 	err = s.repository.Update(ctx, func(writer RepositoryWriter) error {
-		record, _ = writer.GetPersonalProfile(actorUserID)
+		record, _ = writer.GetPersonalProfile(profileRef)
 		if record.Sports == nil {
 			record = models4sportius.PersonalProfileRecord{
-				UserID: actorUserID,
-				Sports: make(map[sportius.SportID]sportius.PersonalSport),
+				SpaceID: profileRef.SpaceID,
+				UserID:  actorUserID,
+				Sports:  make(map[sportius.SportID]sportius.PersonalSport),
 			}
 		}
+		record.SpaceID = profileRef.SpaceID
+		record.UserID = actorUserID
 		record.Sports[sportID] = sportius.PersonalSport{
 			SportID:    sportID,
 			RoleIDs:    roles,
@@ -151,10 +166,20 @@ func (s *Service) DeletePersonalSport(ctx context.Context, actorUserID string, s
 	if err := validateSport(sportID); err != nil {
 		return sportius.PersonalSportsProfile{}, err
 	}
-	record := models4sportius.PersonalProfileRecord{UserID: actorUserID, Sports: make(map[sportius.SportID]sportius.PersonalSport)}
-	err := s.repository.Update(ctx, func(writer RepositoryWriter) error {
-		if existing, ok := writer.GetPersonalProfile(actorUserID); ok {
+	profileRef, err := s.personalProfileRef(ctx, actorUserID)
+	if err != nil {
+		return sportius.PersonalSportsProfile{}, err
+	}
+	record := models4sportius.PersonalProfileRecord{
+		SpaceID: profileRef.SpaceID,
+		UserID:  actorUserID,
+		Sports:  make(map[sportius.SportID]sportius.PersonalSport),
+	}
+	err = s.repository.Update(ctx, func(writer RepositoryWriter) error {
+		if existing, ok := writer.GetPersonalProfile(profileRef); ok {
 			record = existing
+			record.SpaceID = profileRef.SpaceID
+			record.UserID = actorUserID
 			delete(record.Sports, sportID)
 			writer.PutPersonalProfile(record)
 		}
@@ -164,6 +189,18 @@ func (s *Service) DeletePersonalSport(ctx context.Context, actorUserID string, s
 		return sportius.PersonalSportsProfile{}, err
 	}
 	return sportius.PersonalSportsProfile{UserID: actorUserID, Sports: personalSports(record)}, nil
+}
+
+func (s *Service) personalProfileRef(ctx context.Context, actorUserID string) (PersonalProfileRef, error) {
+	spaceID, err := s.core.GetPersonalSpaceID(ctx, actorUserID)
+	if err != nil {
+		return PersonalProfileRef{}, coreFailure("sportius.error.personal_space", err)
+	}
+	spaceID = strings.TrimSpace(spaceID)
+	if spaceID == "" {
+		return PersonalProfileRef{}, coreFailure("sportius.error.personal_space", ErrNotFound)
+	}
+	return PersonalProfileRef{SpaceID: spaceID, UserID: actorUserID}, nil
 }
 
 func (s *Service) SearchTeams(ctx context.Context, actorUserID string, request sportius.SearchRequest) ([]sportius.TeamBrief, error) {

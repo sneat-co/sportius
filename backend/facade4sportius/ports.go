@@ -27,6 +27,7 @@ type CorePort interface {
 	ResolveInvitation(ctx context.Context, input CoreResolveInvitationInput) (CoreInvitationResolution, error)
 	AcceptInvitation(ctx context.Context, input CoreAcceptInvitationInput) (CoreInvitationClaim, error)
 	UserDisplayName(ctx context.Context, userID string) (string, error)
+	GetPersonalSpaceID(ctx context.Context, actorUserID string) (spaceID string, err error)
 	GetSpaceAccess(ctx context.Context, actorUserID, spaceID string) (SpaceAccess, error)
 	ListUserSportSpaces(ctx context.Context, actorUserID string) ([]UserSportSpaceAccess, error)
 }

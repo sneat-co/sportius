@@ -7,7 +7,8 @@ import (
 
 func profileRecord(userID string, sportID sportius.SportID) models4sportius.PersonalProfileRecord {
 	return models4sportius.PersonalProfileRecord{
-		UserID: userID,
+		SpaceID: "personal-" + userID,
+		UserID:  userID,
 		Sports: map[sportius.SportID]sportius.PersonalSport{
 			sportID: {
 				SportID:    sportID,
@@ -15,4 +16,8 @@ func profileRecord(userID string, sportID sportius.SportID) models4sportius.Pers
 			},
 		},
 	}
+}
+
+func personalProfileRef(userID string) PersonalProfileRef {
+	return PersonalProfileRef{SpaceID: "personal-" + userID, UserID: userID}
 }
