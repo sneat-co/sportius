@@ -24,7 +24,10 @@ permission meanings.
 #### REQ: personal-sport-entry
 
 Users MUST be able to add, hide or remove multiple catalogue-backed sports without
-joining a team; storage MUST use stable sport identifiers.
+joining a team; storage MUST use stable sport identifiers. The canonical profile
+MUST be owned by the user's personal Sneat Space, not by a global user-settings
+exception. A legacy user-scoped record MAY be read during migration but MUST NOT
+receive new writes.
 
 #### REQ: role-multiselect
 
@@ -65,6 +68,20 @@ space permission changes.
 **Given** a user has several personal sports,
 **When** they hide one, unhide it and later remove it,
 **Then** only that profile entry changes and no team or club membership changes.
+
+### AC: profile-is-personal-space-owned (verifies REQ:personal-sport-entry)
+
+**Given** a user with a personal Sneat Space,
+**When** they add or edit Basketball,
+**Then** the canonical Sportius profile is stored in that Space's extension record
+and no global user settings document becomes the source of truth.
+
+### AC: legacy-profile-migrates-on-write (verifies REQ:personal-sport-entry)
+
+**Given** a profile created at the former user-scoped path,
+**When** the user reads it and later changes a sport,
+**Then** the read remains compatible and the complete updated profile is written
+to the personal Space without losing existing sports.
 
 ### AC: catalogue-values-are-stable-and-localised (verifies REQ:personal-sport-entry, REQ:role-multiselect)
 

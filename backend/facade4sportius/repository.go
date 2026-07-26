@@ -15,8 +15,15 @@ type Repository interface {
 	Update(ctx context.Context, fn func(RepositoryWriter) error) error
 }
 
+// PersonalProfileRef identifies the canonical personal-Space record and the
+// legacy user-scoped record that can be read during lazy migration.
+type PersonalProfileRef struct {
+	SpaceID string
+	UserID  string
+}
+
 type RepositoryReader interface {
-	GetPersonalProfile(userID string) (models4sportius.PersonalProfileRecord, bool)
+	GetPersonalProfile(ref PersonalProfileRef) (models4sportius.PersonalProfileRecord, bool)
 	GetTeam(spaceID string) (models4sportius.TeamRecord, bool)
 	ListTeams() []models4sportius.TeamRecord
 	FindTeamSearchRecords(filter TeamSearchFilter) []models4sportius.TeamSearchRecord

@@ -271,6 +271,10 @@ func (f *fakeCorePort) UserDisplayName(_ context.Context, userID string) (string
 	return f.displayNames[userID], nil
 }
 
+func (f *fakeCorePort) GetPersonalSpaceID(_ context.Context, actorUserID string) (string, error) {
+	return "personal-" + actorUserID, nil
+}
+
 func (f *fakeCorePort) GetSpaceAccess(_ context.Context, actorUserID, spaceID string) (SpaceAccess, error) {
 	f.mu.Lock()
 	defer f.mu.Unlock()
@@ -465,7 +469,7 @@ func TestMemoryRepositoryRollsBackFailedUpdateAndCopiesValues(t *testing.T) {
 		t.Fatalf("Update error = %v", err)
 	}
 	if err = repository.View(ctx, func(reader RepositoryReader) error {
-		if _, ok := reader.GetPersonalProfile("owner"); ok {
+		if _, ok := reader.GetPersonalProfile(personalProfileRef("owner")); ok {
 			t.Fatal("failed transaction was committed")
 		}
 		return nil
@@ -480,14 +484,14 @@ func TestMemoryRepositoryRollsBackFailedUpdateAndCopiesValues(t *testing.T) {
 		t.Fatal(err)
 	}
 	if err = repository.View(ctx, func(reader RepositoryReader) error {
-		record, _ := reader.GetPersonalProfile("owner")
+		record, _ := reader.GetPersonalProfile(personalProfileRef("owner"))
 		delete(record.Sports, sportius.SportBasketball)
 		return nil
 	}); err != nil {
 		t.Fatal(err)
 	}
 	_ = repository.View(ctx, func(reader RepositoryReader) error {
-		record, _ := reader.GetPersonalProfile("owner")
+		record, _ := reader.GetPersonalProfile(personalProfileRef("owner"))
 		if len(record.Sports) != 1 {
 			t.Fatal("read result mutated repository state")
 		}

@@ -26,6 +26,10 @@ duplicate real-world organisations are unavoidable.
 Personal sport visibility MUST be user-controlled and independent from team/club
 membership. Guardian links MUST NOT disclose team data or grant access. Bot handlers
 MUST validate identity, callback state, space access and invitation validity.
+Personal sports MUST be owned by the user's personal Space. Team and club
+memberships MUST remain authoritative in their own Spaces and MAY be rendered as
+derived views; they MUST NOT be copied into family Space settings. Family-wide
+Sports aggregation requires an explicit linkage or sharing grant per affiliation.
 
 #### REQ: merge-aware-records
 
@@ -48,6 +52,13 @@ personal profile,
 **When** another member views the team,
 **Then** the membership is available according to team access while the user’s
 personal Football profile entry is not automatically exposed or created.
+
+### AC: family-navigation-is-not-sharing (verifies REQ:privacy-boundaries)
+
+**Given** a user can open Sports from their family Space card but has not shared a
+private team affiliation with that family Space,
+**When** another family member opens the family Space,
+**Then** the private team is not disclosed merely because Sports navigation exists.
 
 ### AC: duplicates-remain-reconcilable (verifies REQ:merge-aware-records, REQ:conflict-inventory)
 

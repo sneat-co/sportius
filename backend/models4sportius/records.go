@@ -7,11 +7,13 @@ package models4sportius
 
 import sportius "github.com/sneat-co/ext-sportius/backend"
 
-// PersonalProfileRecord is stored under the authenticated user's Sportius
-// extension namespace.
+// PersonalProfileRecord is stored under the authenticated user's personal
+// Space Sportius extension namespace. UserID remains as the profile subject;
+// SpaceID is the canonical ownership and persistence boundary.
 type PersonalProfileRecord struct {
-	UserID string                                      `firestore:"userID" json:"userID"`
-	Sports map[sportius.SportID]sportius.PersonalSport `firestore:"sports" json:"sports"`
+	SpaceID string                                      `firestore:"spaceID" json:"spaceID"`
+	UserID  string                                      `firestore:"userID" json:"userID"`
+	Sports  map[sportius.SportID]sportius.PersonalSport `firestore:"sports" json:"sports"`
 }
 
 // TeamSearchRecord is the deliberately public, minimal discovery projection.
@@ -110,7 +112,11 @@ type InvitationRecord struct {
 // Clone helpers ensure repository callers never mutate stored state through a
 // slice, map, or pointer retained from an earlier transaction.
 func ClonePersonalProfileRecord(v PersonalProfileRecord) PersonalProfileRecord {
-	result := PersonalProfileRecord{UserID: v.UserID, Sports: make(map[sportius.SportID]sportius.PersonalSport, len(v.Sports))}
+	result := PersonalProfileRecord{
+		SpaceID: v.SpaceID,
+		UserID:  v.UserID,
+		Sports:  make(map[sportius.SportID]sportius.PersonalSport, len(v.Sports)),
+	}
 	for id, entry := range v.Sports {
 		entry.RoleIDs = cloneRoleIDs(entry.RoleIDs)
 		result.Sports[id] = entry

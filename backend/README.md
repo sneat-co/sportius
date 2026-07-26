@@ -16,8 +16,13 @@ unit and bot-flow tests. `DalgoRepository` is the production adapter.
 
 The dalgo adapter stores canonical data at:
 
-- `/users/{uid}/ext/sportius` for the user-controlled personal profile;
+- `/spaces/{personalSpaceID}/ext/sportius` for the user-controlled personal
+  profile;
 - `/spaces/{spaceID}/ext/sportius` for a team or club projection.
+
+The former `/users/{uid}/ext/sportius` profile is a read-only migration source.
+The first successful profile mutation writes the complete record to the
+personal Space; the old record can be retired after rollout verification.
 
 Exact-name discovery projections are stored under
 `/ext/sportius/teams/{spaceID}` and `/ext/sportius/clubs/{spaceID}`.
@@ -87,6 +92,11 @@ receive cross-team contacts.
 Generic Sneat space access is authoritative for every management mutation and
 viewer capability, and for the teams and clubs shown on Sports home. Sportius
 membership/owner projections are query aids only.
+`My Teams` and `My Clubs` are derived views, not copied lists in a user,
+personal-Space or family-Space settings document. Opening Sports from a family
+Space is navigation and does not disclose every family member's memberships.
+A future family Sports aggregate must use explicit generic linkages or another
+equally explicit sharing grant; absence of such a link means private.
 Public profile browsing never returns player, staff, guardian or club-member
 contacts to an actor who is not a generic space member.
 

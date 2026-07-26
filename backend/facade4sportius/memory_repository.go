@@ -17,6 +17,7 @@ type MemoryRepository struct {
 
 type memoryState struct {
 	profiles              map[string]models4sportius.PersonalProfileRecord
+	legacyProfiles        map[string]models4sportius.PersonalProfileRecord
 	teams                 map[string]models4sportius.TeamRecord
 	teamSearchRecords     map[string]models4sportius.TeamSearchRecord
 	clubs                 map[string]models4sportius.ClubRecord
@@ -36,6 +37,7 @@ func NewMemoryRepository() *MemoryRepository {
 func newMemoryState() memoryState {
 	return memoryState{
 		profiles:              make(map[string]models4sportius.PersonalProfileRecord),
+		legacyProfiles:        make(map[string]models4sportius.PersonalProfileRecord),
 		teams:                 make(map[string]models4sportius.TeamRecord),
 		teamSearchRecords:     make(map[string]models4sportius.TeamSearchRecord),
 		clubs:                 make(map[string]models4sportius.ClubRecord),
@@ -71,12 +73,14 @@ func (r *MemoryRepository) Update(ctx context.Context, fn func(RepositoryWriter)
 	return nil
 }
 
-func (tx memoryTx) GetPersonalProfile(userID string) (models4sportius.PersonalProfileRecord, bool) {
-	value, ok := tx.state.profiles[userID]
-	if !ok {
-		return models4sportius.PersonalProfileRecord{}, false
+func (tx memoryTx) GetPersonalProfile(ref PersonalProfileRef) (models4sportius.PersonalProfileRecord, bool) {
+	if value, ok := tx.state.profiles[ref.SpaceID]; ok {
+		return models4sportius.ClonePersonalProfileRecord(value), true
 	}
-	return models4sportius.ClonePersonalProfileRecord(value), ok
+	if value, ok := tx.state.legacyProfiles[ref.UserID]; ok {
+		return models4sportius.ClonePersonalProfileRecord(value), true
+	}
+	return models4sportius.PersonalProfileRecord{}, false
 }
 
 func (tx memoryTx) GetTeam(spaceID string) (models4sportius.TeamRecord, bool) {
@@ -153,7 +157,7 @@ func (tx memoryTx) FindInvitationByRequest(actorUserID, requestID string) (model
 }
 
 func (tx memoryTx) PutPersonalProfile(profile models4sportius.PersonalProfileRecord) {
-	tx.state.profiles[profile.UserID] = models4sportius.ClonePersonalProfileRecord(profile)
+	tx.state.profiles[profile.SpaceID] = models4sportius.ClonePersonalProfileRecord(profile)
 }
 
 func (tx memoryTx) PutTeam(team models4sportius.TeamRecord) {
@@ -177,6 +181,9 @@ func cloneMemoryState(state memoryState) memoryState {
 	next := newMemoryState()
 	for id, value := range state.profiles {
 		next.profiles[id] = models4sportius.ClonePersonalProfileRecord(value)
+	}
+	for id, value := range state.legacyProfiles {
+		next.legacyProfiles[id] = models4sportius.ClonePersonalProfileRecord(value)
 	}
 	for id, value := range state.teams {
 		next.teams[id] = models4sportius.CloneTeamRecord(value)
