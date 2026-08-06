@@ -31,11 +31,11 @@ func TestResolveTwoPlayerRosterReturnsStableAuthoritativeSnapshot(t *testing.T) 
 		t.Fatalf("AddTeamStaff: %v", err)
 	}
 
-	snapshot, err := fixture.service.ResolveTwoPlayerRoster(ctx, TwoPlayerRosterRequest{TeamSpaceID: team.Profile.SpaceID})
+	snapshot, err := fixture.service.ResolveTwoPlayerRoster(ctx, sportius.TwoPlayerRosterRequest{TeamSpaceID: team.Profile.SpaceID})
 	if err != nil {
 		t.Fatalf("ResolveTwoPlayerRoster: %v", err)
 	}
-	if snapshot.SchemaVersion != twoPlayerRosterSchemaVersion || snapshot.TeamSpaceID != team.Profile.SpaceID || snapshot.Version == "" {
+	if snapshot.SchemaVersion != sportius.TwoPlayerRosterSchemaVersion || snapshot.TeamSpaceID != team.Profile.SpaceID || snapshot.Version == "" {
 		t.Fatalf("snapshot identity = %#v", snapshot)
 	}
 	if len(snapshot.Players) != 2 || snapshot.Players[0].UserID != "member" || snapshot.Players[1].UserID != "owner" {
@@ -44,7 +44,7 @@ func TestResolveTwoPlayerRosterReturnsStableAuthoritativeSnapshot(t *testing.T) 
 	// The response owns its slice: a consumer cannot mutate retained service
 	// state by changing its accepted snapshot.
 	snapshot.Players[0].UserID = "mutated"
-	resolvedAgain, err := fixture.service.ResolveTwoPlayerRoster(ctx, TwoPlayerRosterRequest{TeamSpaceID: team.Profile.SpaceID})
+	resolvedAgain, err := fixture.service.ResolveTwoPlayerRoster(ctx, sportius.TwoPlayerRosterRequest{TeamSpaceID: team.Profile.SpaceID})
 	if err != nil || resolvedAgain.Players[0].UserID != "member" {
 		t.Fatalf("immutable snapshot check = %#v, %v", resolvedAgain, err)
 	}
@@ -68,18 +68,18 @@ func TestResolveTwoPlayerRosterRejectsStaleOrInvalidMembership(t *testing.T) {
 		}
 	}
 	// Three active player members never becomes an arbitrary two-player entry.
-	if _, err = fixture.service.ResolveTwoPlayerRoster(ctx, TwoPlayerRosterRequest{TeamSpaceID: team.Profile.SpaceID}); !errors.Is(err, ErrConflict) {
+	if _, err = fixture.service.ResolveTwoPlayerRoster(ctx, sportius.TwoPlayerRosterRequest{TeamSpaceID: team.Profile.SpaceID}); !errors.Is(err, ErrConflict) {
 		t.Fatalf("three-player roster error = %v", err)
 	}
 
 	delete(fixture.core.spaceMembers[team.Profile.SpaceID], "replacement")
-	accepted, err := fixture.service.ResolveTwoPlayerRoster(ctx, TwoPlayerRosterRequest{TeamSpaceID: team.Profile.SpaceID})
+	accepted, err := fixture.service.ResolveTwoPlayerRoster(ctx, sportius.TwoPlayerRosterRequest{TeamSpaceID: team.Profile.SpaceID})
 	if err != nil {
 		t.Fatalf("Resolve accepted roster: %v", err)
 	}
 	delete(fixture.core.spaceMembers[team.Profile.SpaceID], "member")
 	fixture.core.spaceMembers[team.Profile.SpaceID]["replacement"] = true
-	if _, err = fixture.service.ResolveTwoPlayerRoster(ctx, TwoPlayerRosterRequest{
+	if _, err = fixture.service.ResolveTwoPlayerRoster(ctx, sportius.TwoPlayerRosterRequest{
 		TeamSpaceID: team.Profile.SpaceID, ExpectedVersion: accepted.Version,
 	}); !errors.Is(err, ErrConflict) {
 		t.Fatalf("stale roster error = %v", err)
@@ -91,7 +91,7 @@ type noRosterCore struct{ CorePort }
 func TestResolveTwoPlayerRosterFailsClosedWithoutHostRosterPort(t *testing.T) {
 	fixture := newServiceFixture()
 	service := NewService(fixture.repository, noRosterCore{fixture.core})
-	_, err := service.ResolveTwoPlayerRoster(context.Background(), TwoPlayerRosterRequest{TeamSpaceID: "team-1"})
+	_, err := service.ResolveTwoPlayerRoster(context.Background(), sportius.TwoPlayerRosterRequest{TeamSpaceID: "team-1"})
 	var contractErr *sportius.Error
 	if !errors.As(err, &contractErr) || contractErr.Code != sportius.ErrorCodeRetryable {
 		t.Fatalf("missing roster port error = %#v", err)
