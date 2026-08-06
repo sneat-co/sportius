@@ -1,0 +1,25 @@
+name: Frontend lockfile
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: frontend-lockfile-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  frozen-install:
+    name: Root frozen install
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.23.1
+      - run: corepack enable
+      - run: corepack install -g pnpm@11.20.0
+      - run: pnpm install --frozen-lockfile

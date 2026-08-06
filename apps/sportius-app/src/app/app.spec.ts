@@ -5,7 +5,22 @@ import { sportiusAppEnvironmentConfig } from '../environments/environment';
 import { App } from './app';
 
 describe('App', () => {
-  beforeEach(() =>
+  beforeEach(() => {
+    Object.defineProperty(window, 'matchMedia', {
+      configurable: true,
+      value: (query: string) =>
+        ({
+          matches: false,
+          media: query,
+          onchange: null,
+          addEventListener: () => undefined,
+          removeEventListener: () => undefined,
+          addListener: () => undefined,
+          removeListener: () => undefined,
+          dispatchEvent: () => false,
+        }) as MediaQueryList,
+    });
+
     TestBed.configureTestingModule({
       imports: [App],
       // App extends BaseAppComponent, which injects auth/analytics/etc., so the
@@ -14,8 +29,8 @@ describe('App', () => {
         ...getStandardSneatProviders(sportiusAppEnvironmentConfig),
         provideRouter([]),
       ],
-    }),
-  );
+    });
+  });
 
   it('creates the root component', () => {
     const fixture = TestBed.createComponent(App);
