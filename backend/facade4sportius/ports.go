@@ -32,6 +32,28 @@ type CorePort interface {
 	ListUserSportSpaces(ctx context.Context, actorUserID string) ([]UserSportSpaceAccess, error)
 }
 
+// TeamRosterPort is an optional, privileged read port for a competition host.
+// It deliberately lives beside CorePort instead of extending it: existing
+// Sportius hosts continue to compile until they opt in, while a competition
+// that needs an authoritative roster fails closed when the host has not wired
+// this capability.
+//
+// The returned set is generic Space membership, not a Sportius projection.
+// The host MUST return every current member identity it can authoritatively
+// resolve for the Space.
+type TeamRosterPort interface {
+	ListSpaceMembers(ctx context.Context, spaceID string) ([]CoreSpaceMember, error)
+}
+
+// CoreSpaceMember is the minimum generic membership identity needed to verify
+// a competition roster. UserID is required for competition entrants; ContactID
+// is retained so hosts that support contact-only memberships can expose their
+// stable identity without granting them entry to an authenticated competition.
+type CoreSpaceMember struct {
+	UserID    string
+	ContactID string
+}
+
 type CreateSpaceInput struct {
 	RequestID   string
 	Kind        sportius.SpaceKind

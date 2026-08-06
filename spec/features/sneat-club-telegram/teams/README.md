@@ -54,6 +54,16 @@ profile fields (name, sport, gender, age, location and image).
 When create/join introduces a sport absent from the personal profile, the user MUST
 be asked whether to add it; no automatic profile mutation is allowed.
 
+#### REQ: competition-roster-authority
+
+A privileged competition host MAY request a team’s two-player entrant snapshot.
+Sportius MUST verify each Player projection against authoritative generic Space
+membership, require exactly two current authenticated player members, and return a
+deterministic versioned identity snapshot. A later request carrying that version
+MUST fail closed if either accepted player membership changed. The host adapter,
+not a competition extension, resolves generic membership; Sportius projections
+alone MUST NOT be accepted as authority.
+
 ## Acceptance Criteria
 
 ### AC: minimal-team-created (verifies REQ:team-space, REQ:team-creation)
@@ -133,6 +143,15 @@ choose or skip gender,
 **Given** a user joins a Basketball team without a Basketball profile entry,
 **When** they explicitly choose Yes at the profile prompt,
 **Then** Basketball is added privately; it is not added before that choice.
+
+### AC: competition-roster-snapshot-is-authoritative (verifies REQ:competition-roster-authority)
+
+**Given** a team has exactly two authenticated Player participants and an unrelated
+coach member,
+**When** a privileged competition host requests its roster snapshot,
+**Then** it receives only the two stable player identities and a version; a third
+Player, a missing generic player membership, or a later player replacement rejects
+the entry rather than silently changing its accepted roster.
 
 ## Open Questions
 
