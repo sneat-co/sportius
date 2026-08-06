@@ -15,7 +15,7 @@ Keep these boundaries:
 - Do not import another extension implementation. Express host or
   cross-extension needs as ports.
 - ToGethered owns places and attendance, GameBoard owns games/scoring, and
-  MatchUps owns competitions.
+  Competios owns competitions.
 - Public web UI is out of scope for the Telegram MVP. Do not extend the
   generated web scaffold unless a web initiative explicitly requests it.
 

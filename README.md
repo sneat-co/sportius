@@ -17,7 +17,7 @@ it calls the facade implemented here through the stable
 - ToGethered owns reusable places, venues, attendance, and activity intent.
   Sportius stores a narrow location hint and may reference a ToGethered spot.
 - GameBoard owns games, participation in a game, and scoring.
-- MatchUps owns competitions, leagues, cups, divisions, and fixtures.
+- Competios owns competitions, leagues, cups, divisions, and fixtures.
 - Sportus is a separate legacy wind-sports/equipment extension. Its staged
   retirement is tracked in Backstage; it is not renamed into Sportius.
 
