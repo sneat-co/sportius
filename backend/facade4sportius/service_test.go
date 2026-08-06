@@ -301,6 +301,18 @@ func (f *fakeCorePort) ListUserSportSpaces(_ context.Context, actorUserID string
 	return result, nil
 }
 
+func (f *fakeCorePort) ListSpaceMembers(_ context.Context, spaceID string) ([]CoreSpaceMember, error) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	result := make([]CoreSpaceMember, 0, len(f.spaceMembers[spaceID]))
+	for userID, isMember := range f.spaceMembers[spaceID] {
+		if isMember {
+			result = append(result, CoreSpaceMember{UserID: userID})
+		}
+	}
+	return result, nil
+}
+
 type serviceFixture struct {
 	service    *Service
 	repository *MemoryRepository
