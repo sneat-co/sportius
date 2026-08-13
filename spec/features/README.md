@@ -8,7 +8,7 @@ format: https://specscore.md/features-index-specification
 
 | Feature | Status | Source Ideas |
 |---|---|---|
-| [sneat-club-telegram](sneat-club-telegram/README.md) | Draft | sneat-club |
+| [Sneat Club Telegram MVP](sneat-club-telegram/README.md) | Draft | sneat-club |
 
 ## Open Questions
 
