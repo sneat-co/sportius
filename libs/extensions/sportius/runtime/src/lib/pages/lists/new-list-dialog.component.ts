@@ -25,7 +25,7 @@ import {
   IonTitle,
   IonToolbar,
   ModalController,
-} from '@ionic/angular/standalone';
+} from '@ionic/angular';
 import { IListInfo, ListType } from '@sneat/extension-sportius-contract';
 import { ErrorLogger, IErrorLogger } from '@sneat/core';
 
@@ -59,7 +59,7 @@ export class NewListDialogComponent implements AfterViewInit {
   protected readonly listNameInput = viewChild<IonInput>('listNameInput');
 
   public readonly listName = signal('');
-  public readonly visibility = signal<'private' | 'family'>('private');
+  public readonly visibility = signal<'personal' | 'family'>('personal');
 
   @Input() title?: string;
   @Input() listType?: ListType;
