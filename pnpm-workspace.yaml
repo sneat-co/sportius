@@ -6,7 +6,43 @@
 # app resolves for @angular/core ($-ref, so it tracks the framework automatically
 # and needs no maintenance on Angular bumps) — collapsing to one @angular/core.
 overrides:
-  '@angular/compiler': '$@angular/core'
+  '@angular/router': 22.1.3
+  '@angular/platform-server': 22.1.3
+  '@angular/platform-browser-dynamic': 22.1.3
+  '@angular/platform-browser': 22.1.3
+  '@angular/forms': 22.1.3
+  '@angular/core': 22.1.3
+  '@angular/common': 22.1.3
+  '@angular/animations': 22.1.3
+  '@sneat/api-firebase-auth': 0.26.4
+  '@sneat/api-public': 0.26.4
+  '@sneat/api': 0.26.4
+  '@sneat/app-auth': 0.26.4
+  '@sneat/app-ionic': 0.26.4
+  '@sneat/app-public': 0.26.4
+  '@sneat/app': 0.26.4
+  '@sneat/auth-core': 0.26.4
+  '@sneat/auth-models': 0.26.4
+  '@sneat/auth-ui': 0.26.4
+  '@sneat/components': 0.26.4
+  '@sneat/core-public': 0.26.4
+  '@sneat/core': 0.26.4
+  '@sneat/data': 0.26.4
+  '@sneat/datagrid': 0.26.4
+  '@sneat/dto': 0.26.4
+  '@sneat/extension-calendarius-contract': 0.26.4
+  '@sneat/extension-calendarius-internal': 0.26.4
+  '@sneat/extension-calendarius-shared': 0.26.4
+  '@sneat/grid': 0.26.4
+  '@sneat/logging': 0.26.4
+  '@sneat/space-components': 0.26.4
+  '@sneat/space-models': 0.26.4
+  '@sneat/space-nav-ionic': 0.26.4
+  '@sneat/space-nav-router': 0.26.4
+  '@sneat/space-services': 0.26.4
+  '@sneat/ui': 0.26.4
+  '@sneat/wizard': 0.26.4
+  '@angular/compiler': 22.1.3
   # Dependabot CVE fixes forced onto transitive deps (firebase@12 / dev tooling).
   # `>=` floors so pnpm resolves the highest compatible patched version rather
   # than pinning. Prune an entry once the direct dep that pulls the vulnerable
@@ -28,13 +64,29 @@ overrides:
   undici: '>=7.28.0'
   uuid: '>=11.1.1'
   webpack-dev-server: '>=5.2.5'
-# Bound workspace-member discovery to the real source packages (root + libs).
-# Without this, pnpm globs every package.json — including dist/ build copies —
-# so `pnpm install` after a build fails with ERR_PNPM_OUTDATED_LOCKFILE.
-# landings/ is its own separate workspace and is intentionally excluded.
+# No local workspace packages: apps/* and libs/** have no package.json of
+# their own (NX projects share this root package.json; libs/extensions/sportius/
+# runtime's package.json exists only for `nx release publish` metadata and is
+# deliberately NOT a pnpm workspace member — see below). landings/ is its own
+# separate workspace and is intentionally excluded.
+#
+# libs/extensions/sportius/runtime is consumed by the app purely via
+# tsconfig.base.json path-mapping (@sneat/extension-sportius -> its src/index.ts),
+# never through node_modules. Registering it as a pnpm workspace member (it
+# used to be, via a `libs/**` glob here) gave it its OWN local node_modules,
+# independently peer-resolving the same @sneat/* / @angular/fire packages the
+# root app also depends on directly. pnpm does not dedupe those two resolution
+# contexts even when the resolved content is byte-identical (confirmed via
+# `pnpm why @sneat/ui -r`: 2 physical instances, same version, different
+# hashes) — so components that both provide and inject an InjectionToken from
+# such a package (e.g. @sneat/ui's `ClassName`, injected by SpaceBaseComponent
+# and locally provided by ListsPageComponent) got two non-interchangeable
+# token references, producing a real NG0201 at runtime (reproduced in both the
+# dev server and the production esbuild bundle). The landed sibling contactus
+# never registers its equivalent libs/extensions/contactus/{runtime,ui} as pnpm
+# workspace packages either, for the same reason — this mirrors that pattern.
 packages:
   - 'apps/*'
-  - 'libs/**'
 allowBuilds:
   '@firebase/util': true
   '@parcel/watcher': true
