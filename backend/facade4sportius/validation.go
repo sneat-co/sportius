@@ -8,7 +8,7 @@ import (
 	"strings"
 	"unicode"
 
-	sportius "github.com/sneat-co/ext-sportius/backend"
+	sportius "github.com/sneat-co/sneat-ext-contracts/sportius"
 )
 
 func validateActor(actorUserID string) error {

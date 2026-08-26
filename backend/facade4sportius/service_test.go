@@ -7,7 +7,7 @@ import (
 	"sync"
 	"testing"
 
-	sportius "github.com/sneat-co/ext-sportius/backend"
+	sportius "github.com/sneat-co/sneat-ext-contracts/sportius"
 )
 
 type fakeCorePort struct {

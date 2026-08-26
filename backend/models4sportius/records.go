@@ -5,7 +5,7 @@
 // needed to render Sportius profiles and to make Sportius commands idempotent.
 package models4sportius
 
-import sportius "github.com/sneat-co/ext-sportius/backend"
+import sportius "github.com/sneat-co/sneat-ext-contracts/sportius"
 
 // PersonalProfileRecord is stored under the authenticated user's personal
 // Space Sportius extension namespace. UserID remains as the profile subject;

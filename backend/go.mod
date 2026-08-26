@@ -7,7 +7,7 @@ toolchain go1.27.0
 require (
 	github.com/dal-go/dalgo v0.63.1
 	github.com/dal-go/record v0.1.0
-	github.com/sneat-co/ext-sportius/backend v0.3.0
+	github.com/sneat-co/sneat-ext-contracts/sportius v0.3.1
 )
 
 require (
