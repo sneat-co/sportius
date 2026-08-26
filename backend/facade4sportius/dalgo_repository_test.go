@@ -6,16 +6,16 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/dal-go/dalgo/adapters/dalgo2memory"
 	"github.com/dal-go/dalgo/dal"
 	dalrecord "github.com/dal-go/record"
 	sportius "github.com/sneat-co/sneat-ext-contracts/sportius"
+	"github.com/sneat-co/sneat-go-core/sneatcoretesting"
 	"github.com/sneat-co/sportius/backend/models4sportius"
 )
 
 func TestDalgoRepositoryPersistsCanonicalDocumentsAndIndexes(t *testing.T) {
 	ctx := context.Background()
-	db := dalgo2memory.NewDB()
+	db := sneatcoretesting.NewInMemoryTestDB()
 	repository := NewDalgoRepository(db)
 	core := newFakeCorePort()
 	service := NewService(repository, core)
@@ -127,7 +127,7 @@ func TestDalgoRepositoryPersistsCanonicalDocumentsAndIndexes(t *testing.T) {
 
 func TestDalgoRepositoryLazilyMigratesLegacyUserProfileToPersonalSpace(t *testing.T) {
 	ctx := context.Background()
-	db := dalgo2memory.NewDB()
+	db := sneatcoretesting.NewInMemoryTestDB()
 	legacy := profileRecord("owner", sportius.SportBasketball)
 	legacy.SpaceID = ""
 	if err := db.RunReadwriteTransaction(ctx, func(ctx context.Context, tx dal.ReadwriteTransaction) error {
