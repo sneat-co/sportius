@@ -1,10 +1,10 @@
-# Firebase's @angular/fire@20 drags in @angular/platform-browser-dynamic@20 ->
-# @angular/compiler@20, creating a SECOND @angular/core variant (keyed by a
-# different compiler peer). Two physical @angular/core copies make TypeScript
-# treat InjectionToken from one as incompatible with ProviderToken from the other
-# (TS2345), breaking `nx build`. Pin @angular/compiler to the SAME version the
-# app resolves for @angular/core ($-ref, so it tracks the framework automatically
-# and needs no maintenance on Angular bumps) — collapsing to one @angular/core.
+# @angular/compiler is pinned alongside the rest of the @angular/* family below
+# for consistency. This previously worked around @angular/fire@20 dragging in
+# @angular/platform-browser-dynamic@20 -> @angular/compiler@20, creating a
+# SECOND @angular/core variant (keyed by a different compiler peer) that made
+# TypeScript treat InjectionToken from one as incompatible with ProviderToken
+# from the other (TS2345), breaking `nx build`. @angular/fire is gone as of
+# this repo's 0.27.0 platform bump; the pin is kept as insurance.
 overrides:
   '@angular-devkit/core': 22.1.5
   '@angular-devkit/schematics': 22.1.5
@@ -16,34 +16,34 @@ overrides:
   '@angular/core': 22.1.3
   '@angular/common': 22.1.3
   '@angular/animations': 22.1.3
-  '@sneat/api-firebase-auth': 0.26.4
-  '@sneat/api-public': 0.26.4
-  '@sneat/api': 0.26.4
-  '@sneat/app-auth': 0.26.4
-  '@sneat/app-ionic': 0.26.4
-  '@sneat/app-public': 0.26.4
-  '@sneat/app': 0.26.4
-  '@sneat/auth-core': 0.26.4
-  '@sneat/auth-models': 0.26.4
-  '@sneat/auth-ui': 0.26.4
-  '@sneat/components': 0.26.4
-  '@sneat/core-public': 0.26.4
-  '@sneat/core': 0.26.4
-  '@sneat/data': 0.26.4
-  '@sneat/datagrid': 0.26.4
-  '@sneat/dto': 0.26.4
-  '@sneat/extension-calendarius-contract': 0.26.4
+  '@sneat/api-firebase-auth': 0.27.2
+  '@sneat/api-public': 0.27.2
+  '@sneat/api': 0.27.2
+  '@sneat/app-auth': 0.27.2
+  '@sneat/app-ionic': 0.27.2
+  '@sneat/app-public': 0.27.2
+  '@sneat/app': 0.27.2
+  '@sneat/auth-core': 0.27.2
+  '@sneat/auth-models': 0.27.2
+  '@sneat/auth-ui': 0.27.2
+  '@sneat/components': 0.27.2
+  '@sneat/core-public': 0.27.2
+  '@sneat/core': 0.27.2
+  '@sneat/data': 0.27.2
+  '@sneat/datagrid': 0.27.2
+  '@sneat/dto': 0.27.2
+  '@sneat/extension-calendarius-contract': 0.27.3
   '@sneat/extension-calendarius-internal': 0.26.4
   '@sneat/extension-calendarius-shared': 0.26.4
-  '@sneat/grid': 0.26.4
-  '@sneat/logging': 0.26.4
-  '@sneat/space-components': 0.26.4
-  '@sneat/space-models': 0.26.4
-  '@sneat/space-nav-ionic': 0.26.4
-  '@sneat/space-nav-router': 0.26.4
-  '@sneat/space-services': 0.26.4
-  '@sneat/ui': 0.26.4
-  '@sneat/wizard': 0.26.4
+  '@sneat/grid': 0.27.2
+  '@sneat/logging': 0.27.2
+  '@sneat/space-components': 0.27.2
+  '@sneat/space-models': 0.27.2
+  '@sneat/space-nav-ionic': 0.27.2
+  '@sneat/space-nav-router': 0.27.2
+  '@sneat/space-services': 0.27.2
+  '@sneat/ui': 0.27.2
+  '@sneat/wizard': 0.27.2
   '@angular/compiler': 22.1.3
   # Dependabot CVE fixes forced onto transitive deps (firebase@12 / dev tooling).
   # `>=` floors so pnpm resolves the highest compatible patched version rather

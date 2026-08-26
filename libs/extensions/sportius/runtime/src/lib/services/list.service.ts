@@ -1,11 +1,11 @@
 import { HttpParams } from '@angular/common/http';
 import { Injectable, inject, Injector } from '@angular/core';
 import {
-  Firestore as AngularFirestore,
+  Firestore,
   DocumentReference,
   collection,
   doc,
-} from '@angular/fire/firestore';
+} from 'firebase/firestore';
 import { SneatApiService } from '@sneat/api';
 import { ISpaceContext } from '@sneat/space-models';
 import { ModuleSpaceItemService } from '@sneat/space-services';
@@ -28,7 +28,7 @@ import {
 @Injectable()
 export class ListService extends ModuleSpaceItemService<IListBrief, IListDbo> {
   constructor() {
-    const afs = inject(AngularFirestore);
+    const afs = inject(Firestore);
     const sneatApiService = inject(SneatApiService);
     const injector = inject(Injector);
     super(injector, 'sportius', 'lists', afs, sneatApiService);
