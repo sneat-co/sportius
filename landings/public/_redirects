@@ -1,0 +1,33 @@
+# Routing for this site, served by Cloudflare Workers static assets with NO Worker
+# script (wrangler.jsonc has no `main`). Requests matched here or by a static
+# asset are free and never count against the Workers request quota.
+#
+# Model (backstage ADR 0001):
+#   /                         -> landing home (dist/landing.html, rule below)
+#   any path with a file      -> that file (/en/*, robots.txt, chunks, ...)
+#   any other path            -> app shell (dist/index.html), 200, URL kept:
+#                                assets.not_found_handling = "single-page-application"
+#
+# Rules are first-match and evaluated BEFORE assets, so never add a splat that
+# could shadow a landing file. `/` rewrites to `/landing`, not `/landing.html`
+# (the latter answers 307 under html_handling). The rewrite target is not
+# re-matched, so `/landing` can 301 home without a loop. Host-level redirects
+# (www -> apex) are zone Redirect Rules, not this file.
+
+# --- Landing home -------------------------------------------------------------
+/               /landing                              200
+/landing        /                                     301
+
+# --- Permanent redirects ------------------------------------------------------
+# Legacy /pwa/* -> root-mounted route.
+/pwa            /                                     301
+# English is the default locale and owns the bare root.
+/en             /                                     301
+/en/            /                                     301
+# Unprefixed legal pages -> the default locale's copy.
+/privacy        /en/privacy                           301
+/privacy/       /en/privacy                           301
+/terms          /en/terms                             301
+/terms/         /en/terms                             301
+# Splat rules last (exact rules above are cheaper to match).
+/pwa/*          /:splat                               301
