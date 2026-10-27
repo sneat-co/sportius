@@ -1,15 +1,8 @@
-# @angular/compiler is pinned alongside the rest of the @angular/* family below
-# for consistency. This previously worked around @angular/fire@20 dragging in
-# @angular/platform-browser-dynamic@20 -> @angular/compiler@20, creating a
-# SECOND @angular/core variant (keyed by a different compiler peer) that made
-# TypeScript treat InjectionToken from one as incompatible with ProviderToken
-# from the other (TS2345), breaking `nx build`. @angular/fire is gone as of
-# this repo's 0.27.0 platform bump; the pin is kept as insurance.
 overrides:
   '@angular-devkit/core': 22.1.5
   '@angular-devkit/schematics': 22.1.5
   '@angular/router': 22.1.3
-  '@angular/platform-server': 22.1.3
+  '@angular/platform-server': 22.2.1
   '@angular/platform-browser-dynamic': 22.1.3
   '@angular/platform-browser': 22.1.3
   '@angular/forms': 22.1.3
