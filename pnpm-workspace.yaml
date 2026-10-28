@@ -9,34 +9,34 @@ overrides:
   '@angular/core': 22.1.3
   '@angular/common': 22.1.3
   '@angular/animations': 22.1.3
-  '@sneat/api-firebase-auth': 0.27.45
-  '@sneat/api-public': 0.27.45
-  '@sneat/api': 0.27.45
-  '@sneat/app-auth': 0.27.45
-  '@sneat/app-ionic': 0.27.45
-  '@sneat/app-public': 0.27.45
-  '@sneat/app': 0.27.45
-  '@sneat/auth-core': 0.27.45
-  '@sneat/auth-models': 0.27.45
-  '@sneat/auth-ui': 0.27.45
-  '@sneat/components': 0.27.45
-  '@sneat/core-public': 0.27.45
-  '@sneat/core': 0.27.45
-  '@sneat/data': 0.27.45
-  '@sneat/datagrid': 0.27.45
-  '@sneat/dto': 0.27.45
+  '@sneat/api-firebase-auth': 0.27.46
+  '@sneat/api-public': 0.27.46
+  '@sneat/api': 0.27.46
+  '@sneat/app-auth': 0.27.46
+  '@sneat/app-ionic': 0.27.46
+  '@sneat/app-public': 0.27.46
+  '@sneat/app': 0.27.46
+  '@sneat/auth-core': 0.27.46
+  '@sneat/auth-models': 0.27.46
+  '@sneat/auth-ui': 0.27.46
+  '@sneat/components': 0.27.46
+  '@sneat/core-public': 0.27.46
+  '@sneat/core': 0.27.46
+  '@sneat/data': 0.27.46
+  '@sneat/datagrid': 0.27.46
+  '@sneat/dto': 0.27.46
   '@sneat/extension-calendarius-contract': 0.27.8
   '@sneat/extension-calendarius-internal': 0.27.2
   '@sneat/extension-calendarius-shared': 0.27.2
-  '@sneat/grid': 0.27.45
-  '@sneat/logging': 0.27.45
-  '@sneat/space-components': 0.27.45
-  '@sneat/space-models': 0.27.45
-  '@sneat/space-nav-ionic': 0.27.45
-  '@sneat/space-nav-router': 0.27.45
-  '@sneat/space-services': 0.27.45
-  '@sneat/ui': 0.27.45
-  '@sneat/wizard': 0.27.45
+  '@sneat/grid': 0.27.46
+  '@sneat/logging': 0.27.46
+  '@sneat/space-components': 0.27.46
+  '@sneat/space-models': 0.27.46
+  '@sneat/space-nav-ionic': 0.27.46
+  '@sneat/space-nav-router': 0.27.46
+  '@sneat/space-services': 0.27.46
+  '@sneat/ui': 0.27.46
+  '@sneat/wizard': 0.27.46
   '@angular/compiler': 22.1.3
   # Dependabot CVE fixes forced onto transitive deps (firebase@12 / dev tooling).
   # `>=` floors so pnpm resolves the highest compatible patched version rather
