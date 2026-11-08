@@ -5,10 +5,10 @@ go 1.26.0
 toolchain go1.27.0
 
 require (
-	github.com/dal-go/dalgo v0.96.2
+	github.com/dal-go/dalgo v0.102.0
 	github.com/dal-go/record v0.1.5
 	github.com/sneat-co/sneat-ext-contracts/sportius v0.3.3
-	github.com/sneat-co/sneat-go-core v0.77.1
+	github.com/sneat-co/sneat-go-core v0.77.3
 )
 
 require (
