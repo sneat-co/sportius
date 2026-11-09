@@ -2,10 +2,10 @@ module github.com/sneat-co/sportius/backend
 
 go 1.26.0
 
-toolchain go1.27.0
+toolchain go1.27.3
 
 require (
-	github.com/dal-go/dalgo v0.102.0
+	github.com/dal-go/dalgo v0.102.1
 	github.com/dal-go/record v0.1.5
 	github.com/sneat-co/sneat-ext-contracts/sportius v0.3.3
 	github.com/sneat-co/sneat-go-core v0.77.3
