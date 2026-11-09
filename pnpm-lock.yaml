@@ -31,7 +31,7 @@ overrides:
   '@sneat/data': 0.27.51
   '@sneat/datagrid': 0.27.51
   '@sneat/dto': 0.27.51
-  '@sneat/extension-calendarius-contract': 0.27.8
+  '@sneat/extension-calendarius-contract': 0.28.0
   '@sneat/extension-calendarius-internal': 0.27.2
   '@sneat/extension-calendarius-shared': 0.27.2
   '@sneat/grid': 0.27.51
@@ -138,17 +138,17 @@ importers:
         specifier: 0.11.0
         version: 0.11.0(@angular/common@22.2.5(@angular/core@22.2.5(@angular/compiler@22.2.5)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@22.2.5(@angular/compiler@22.2.5)(rxjs@7.8.2))(@ionic/angular@9.0.10(d88df57352e1bd539515872f4337ffcf))
       '@sneat/extension-calendarius-contract':
-        specifier: 0.27.8
-        version: 0.27.8(@angular/common@22.2.5(@angular/core@22.2.5(@angular/compiler@22.2.5)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@22.2.5(@angular/compiler@22.2.5)(rxjs@7.8.2))(rxjs@7.8.2)
+        specifier: 0.28.0
+        version: 0.28.0(@angular/common@22.2.5(@angular/core@22.2.5(@angular/compiler@22.2.5)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@22.2.5(@angular/compiler@22.2.5)(rxjs@7.8.2))(rxjs@7.8.2)
       '@sneat/extension-contactus':
         specifier: 0.14.20
-        version: 0.14.20(39a1508a9cc4dd71cc6a3050a7ae5264)
+        version: 0.14.20(1a867059e2ea7c858dad61f749f6c606)
       '@sneat/extension-contactus-contract':
         specifier: ^0.12.3
         version: 0.12.13(23ecfb6b692e299c16f57a070a295032)
       '@sneat/extension-contactus-ui':
         specifier: 0.14.20
-        version: 0.14.20(8028cc04083bd127f24078930e0cc476)
+        version: 0.14.20(96100029c69f4e2db86bcfd17d4443c5)
       '@sneat/extension-sportius-contract':
         specifier: ^0.3.1
         version: 0.3.3(@angular/core@22.2.5(@angular/compiler@22.2.5)(rxjs@7.8.2))(@sneat/dto@0.27.51(@angular/common@22.2.5(@angular/core@22.2.5(@angular/compiler@22.2.5)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@22.2.5(@angular/compiler@22.2.5)(rxjs@7.8.2)))(@sneat/space-models@0.27.51(@angular/common@22.2.5(@angular/core@22.2.5(@angular/compiler@22.2.5)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@22.2.5(@angular/compiler@22.2.5)(rxjs@7.8.2)))(rxjs@7.8.2)(vitest@4.1.11)
@@ -4605,8 +4605,8 @@ packages:
       '@sneat/space-models': 0.27.51
       rxjs: ^7.0.0
 
-  '@sneat/extension-calendarius-contract@0.27.8':
-    resolution: {integrity: sha512-fx1FfD2zbPeJmKcnWrft6QHE2SyaBL1IseU/hZz+opqfgUAeBfpcagkEVg+O9yypU8+HLZ94Fa9WrHfvTiERKA==}
+  '@sneat/extension-calendarius-contract@0.28.0':
+    resolution: {integrity: sha512-dCLoYlDl1RIsqaC7SJ0whWh9dXYx6uAelEgz3Owf+5QJDl2hfQTQkRMBdOQ8o5IFfWU7Hwrayff/nH7bNDGkOg==}
     peerDependencies:
       '@angular/common': 22.2.5
       '@angular/core': 22.2.5
@@ -4641,7 +4641,7 @@ packages:
       '@sneat/core': 0.27.51
       '@sneat/dto': 0.27.51
       '@sneat/extension-assetus-contract': ^0.2.2
-      '@sneat/extension-calendarius-contract': 0.27.8
+      '@sneat/extension-calendarius-contract': 0.28.0
       '@sneat/extension-contactus-contract': ^0.12.10
       '@sneat/extension-media-contract': ^0.1.1
       '@sneat/media': ^0.27.19
@@ -14595,12 +14595,12 @@ snapshots:
       rxjs: 7.8.2
       tslib: 2.9.1
 
-  '@sneat/extension-calendarius-contract@0.27.8(@angular/common@22.2.5(@angular/core@22.2.5(@angular/compiler@22.2.5)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@22.2.5(@angular/compiler@22.2.5)(rxjs@7.8.2))(rxjs@7.8.2)':
+  '@sneat/extension-calendarius-contract@0.28.0(@angular/common@22.2.5(@angular/core@22.2.5(@angular/compiler@22.2.5)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@22.2.5(@angular/compiler@22.2.5)(rxjs@7.8.2))(rxjs@7.8.2)':
     dependencies:
       '@angular/common': 22.2.5(@angular/core@22.2.5(@angular/compiler@22.2.5)(rxjs@7.8.2))(rxjs@7.8.2)
       '@angular/core': 22.2.5(@angular/compiler@22.2.5)(rxjs@7.8.2)
       rxjs: 7.8.2
-      tslib: 2.8.1
+      tslib: 2.9.1
 
   '@sneat/extension-contactus-contract@0.12.13(23ecfb6b692e299c16f57a070a295032)':
     dependencies:
@@ -14613,7 +14613,7 @@ snapshots:
       rxjs: 7.8.2
       tslib: 2.9.1
 
-  '@sneat/extension-contactus-ui@0.14.20(8028cc04083bd127f24078930e0cc476)':
+  '@sneat/extension-contactus-ui@0.14.20(96100029c69f4e2db86bcfd17d4443c5)':
     dependencies:
       '@angular/animations': 22.2.5(@angular/core@22.2.5(@angular/compiler@22.2.5)(rxjs@7.8.2))
       '@angular/common': 22.2.5(@angular/core@22.2.5(@angular/compiler@22.2.5)(rxjs@7.8.2))(rxjs@7.8.2)
@@ -14630,7 +14630,7 @@ snapshots:
       '@sneat/core': 0.27.51(@angular/animations@22.2.5(@angular/core@22.2.5(@angular/compiler@22.2.5)(rxjs@7.8.2)))(@angular/common@22.2.5(@angular/core@22.2.5(@angular/compiler@22.2.5)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@22.2.5(@angular/compiler@22.2.5)(rxjs@7.8.2))(@angular/router@22.1.3(@angular/common@22.2.5(@angular/core@22.2.5(@angular/compiler@22.2.5)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@22.2.5(@angular/compiler@22.2.5)(rxjs@7.8.2))(@angular/platform-browser@22.2.5(@angular/animations@22.2.5(@angular/core@22.2.5(@angular/compiler@22.2.5)(rxjs@7.8.2)))(@angular/common@22.2.5(@angular/core@22.2.5(@angular/compiler@22.2.5)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@22.2.5(@angular/compiler@22.2.5)(rxjs@7.8.2)))(rxjs@7.8.2))(@ionic/angular@9.0.10(d88df57352e1bd539515872f4337ffcf))(@sneat/core-public@0.27.51(@angular/core@22.2.5(@angular/compiler@22.2.5)(rxjs@7.8.2)))(firebase@12.19.0)(rxjs@7.8.2)
       '@sneat/dto': 0.27.51(@angular/common@22.2.5(@angular/core@22.2.5(@angular/compiler@22.2.5)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@22.2.5(@angular/compiler@22.2.5)(rxjs@7.8.2))
       '@sneat/extension-assetus-contract': 0.2.4(70ec90a61f1503ae0651b6d52b2f1eb7)
-      '@sneat/extension-calendarius-contract': 0.27.8(@angular/common@22.2.5(@angular/core@22.2.5(@angular/compiler@22.2.5)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@22.2.5(@angular/compiler@22.2.5)(rxjs@7.8.2))(rxjs@7.8.2)
+      '@sneat/extension-calendarius-contract': 0.28.0(@angular/common@22.2.5(@angular/core@22.2.5(@angular/compiler@22.2.5)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@22.2.5(@angular/compiler@22.2.5)(rxjs@7.8.2))(rxjs@7.8.2)
       '@sneat/extension-contactus-contract': 0.12.13(23ecfb6b692e299c16f57a070a295032)
       '@sneat/extension-media-contract': 0.1.1
       '@sneat/media': 0.27.45(@angular/common@22.2.5(@angular/core@22.2.5(@angular/compiler@22.2.5)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@22.2.5(@angular/compiler@22.2.5)(rxjs@7.8.2))(@ionic/angular@9.0.10(d88df57352e1bd539515872f4337ffcf))(@sneat/api-public@0.27.51(@angular/common@22.2.5(@angular/core@22.2.5(@angular/compiler@22.2.5)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@22.2.5(@angular/compiler@22.2.5)(rxjs@7.8.2))(@sneat/core-public@0.27.51(@angular/core@22.2.5(@angular/compiler@22.2.5)(rxjs@7.8.2)))(rxjs@7.8.2))(@sneat/extension-media-contract@0.1.1)(rxjs@7.8.2)
@@ -14641,7 +14641,7 @@ snapshots:
       rxjs: 7.8.2
       tslib: 2.9.1
 
-  '@sneat/extension-contactus@0.14.20(39a1508a9cc4dd71cc6a3050a7ae5264)':
+  '@sneat/extension-contactus@0.14.20(1a867059e2ea7c858dad61f749f6c606)':
     dependencies:
       '@angular/common': 22.2.5(@angular/core@22.2.5(@angular/compiler@22.2.5)(rxjs@7.8.2))(rxjs@7.8.2)
       '@angular/core': 22.2.5(@angular/compiler@22.2.5)(rxjs@7.8.2)
@@ -14657,7 +14657,7 @@ snapshots:
       '@sneat/dto': 0.27.51(@angular/common@22.2.5(@angular/core@22.2.5(@angular/compiler@22.2.5)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@22.2.5(@angular/compiler@22.2.5)(rxjs@7.8.2))
       '@sneat/extension-assetus-contract': 0.2.4(70ec90a61f1503ae0651b6d52b2f1eb7)
       '@sneat/extension-contactus-contract': 0.12.13(23ecfb6b692e299c16f57a070a295032)
-      '@sneat/extension-contactus-ui': 0.14.20(8028cc04083bd127f24078930e0cc476)
+      '@sneat/extension-contactus-ui': 0.14.20(96100029c69f4e2db86bcfd17d4443c5)
       '@sneat/random': 0.0.4(@angular/common@22.2.5(@angular/core@22.2.5(@angular/compiler@22.2.5)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@22.2.5(@angular/compiler@22.2.5)(rxjs@7.8.2))
       '@sneat/space-components': 0.27.51(@angular/common@22.2.5(@angular/core@22.2.5(@angular/compiler@22.2.5)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@22.2.5(@angular/compiler@22.2.5)(rxjs@7.8.2))(@ionic/angular@9.0.10(d88df57352e1bd539515872f4337ffcf))
       '@sneat/space-models': 0.27.51(@angular/common@22.2.5(@angular/core@22.2.5(@angular/compiler@22.2.5)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@22.2.5(@angular/compiler@22.2.5)(rxjs@7.8.2))
